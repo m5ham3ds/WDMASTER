@@ -49,6 +49,7 @@
     <!-- ═══════════════════════════════════════════════ -->
     <!-- 🏠 Home - New design elements -->
     <!-- ═══════════════════════════════════════════════ -->
+    <string name="connection_status_connected">🟢 Connected</string>
     <string name="connection_status_disconnected">🔴 Disconnected - Reopen Tool</string>
     <string name="router_file_label">📁 Router File</string>
     <string name="router_address">🌐 192.168.1.1:80 (http)</string>
