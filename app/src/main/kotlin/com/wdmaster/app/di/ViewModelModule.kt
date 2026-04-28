@@ -31,7 +31,7 @@ val viewModelModule = module {
             testBatchUseCase = get(),
             manageRoutersUseCase = get(),
             patternLearningUseCase = get(),
-            app = get()   // ← حقن Application
+            app = get()   // ← يحصل على Application من Koin مباشرة
         )
     }
 
