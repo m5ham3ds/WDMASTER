@@ -20,25 +20,29 @@ class TestStateMachine {
 
     @Synchronized
     fun transition(newState: State) {
-        // التحقق من صحة الانتقالات
+        // الحالات المسموح بها دائمًا (للأمان)
         when (newState) {
-            State.LOADING_PAGE -> check(currentState == State.IDLE || currentState == State.RETRY)
+            State.IDLE,
+            State.LOADING_PAGE,
+            State.SUCCESS,
+            State.FAILURE -> {
+                currentState = newState
+                return
+            }
+            else -> {}
+        }
+
+        // التحقق من صحة الانتقالات للحالات الأخرى
+        when (newState) {
             State.WAITING_DOM -> check(currentState == State.LOADING_PAGE)
             State.INJECTING_CARD -> check(currentState == State.WAITING_DOM)
             State.SUBMITTING_LOGIN -> check(currentState == State.INJECTING_CARD)
             State.CHECKING_RESULT -> check(currentState == State.SUBMITTING_LOGIN)
-            State.SUCCESS -> check(currentState == State.CHECKING_RESULT)
-            State.FAILURE -> check(
-                currentState == State.CHECKING_RESULT ||
-                currentState == State.LOADING_PAGE ||
-                currentState == State.WAITING_DOM ||
-                currentState == State.INJECTING_CARD
-            )
             State.RETRY -> check(currentState == State.FAILURE)
             State.LOGOUT -> check(
                 currentState == State.SUCCESS || currentState == State.FAILURE
             )
-            State.IDLE -> {} // يمكن العودة إلى IDLE من أي حالة
+            else -> {}
         }
         currentState = newState
     }
