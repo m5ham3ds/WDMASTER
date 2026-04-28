@@ -13,11 +13,11 @@
     <color name="success">#FF4CAF50</color>
     <color name="failure">#FFF44336</color>
     <color name="warning">#FFFF9800</color>
-    <color name="info">#FF2196F3</color>
+    <color name="info">#FF9575CD</color>
 
     <!-- ألوان مميزة -->
-    <color name="purple_500">#FF9C27B0</color>
-    <color name="purple_700">#FF5E35B1</color>
+    <color name="purple_500">#FF673AB7</color>
+    <color name="purple_700">#FF512DA8</color>
     <color name="purple_deep">#FF7C4DFF</color>
 
     <!-- سجل الأحداث -->
@@ -25,7 +25,7 @@
     <color name="log_text_default">#FFCCCCCC</color>
     <color name="log_text_success">#FF4CAF50</color>
     <color name="log_text_failure">#FFF44336</color>
-    <color name="log_text_info">#FF2196F3</color>
+    <color name="log_text_info">#FF9575CD</color>
     <color name="log_text_warning">#FFFF9800</color>
     <color name="log_text_time">#FF888888</color>
 
