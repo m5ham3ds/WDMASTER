@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/toolbar_background"
+    android:minHeight="?attr/actionBarSize"
+    app:contentInsetStartWithNavigation="0dp"
+    app:navigationIcon="@drawable/ic_launcher_foreground"
+    app:title="@string/app_name"
+    app:titleCentered="true"
+    app:titleTextColor="@color/toolbar_text"
+    app:titleTextAppearance="@style/ToolbarTitle">
+
+    <ImageView
+        android:id="@+id/iv_menu"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="end"
+        android:contentDescription="@string/nav_menu"
+        android:padding="12dp"
+        android:src="@drawable/ic_menu" />
+
+</com.google.android.material.appbar.MaterialToolbar>

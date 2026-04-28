@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🏷️ App Info -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="app_name">📶 WiFi Card Master Pro</string>
+    <string name="app_version">🔖 1.0.0</string>
+    <string name="app_developer">👨‍💻 WD Master Team</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🧭 Navigation -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="nav_home">🏠 الرئيسية</string>
+    <string name="nav_test">🧪 الاختبار</string>
+    <string name="nav_history">📜 السجلات</string>
+    <string name="nav_router_manager">📡 إدارة الراوترات</string>
+    <string name="nav_settings">⚙️ الإعدادات</string>
+    <string name="nav_about">ℹ️ حول التطبيق</string>
+    <string name="nav_exit">🚪 خروج</string>
+    <string name="nav_menu">📋 قائمة</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🏠 Home - عام -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_home">🎴 توليد البطاقات</string>
+    <string name="select_router">🔽 اختر الراوتر</string>
+    <string name="no_router_selected">⚠️ لم يتم اختيار راوتر</string>
+    <string name="generation_settings">🛠️ إعدادات التوليد</string>
+    <string name="prefix">🔤 البادئة</string>
+    <string name="length">📏 الطول</string>
+    <string name="count">🔢 عدد البطاقات</string>
+    <string name="delay">⏱️ التأخير (مللي ثانية)</string>
+    <string name="retry_count">🔄 عدد المحاولات</string>
+    <string name="advanced">⚡ إعدادات متقدمة</string>
+    <string name="skip_tested">⏭️ تخطي البطاقات المجربة</string>
+    <string name="stop_on_success">🛑 التوقف عند أول نجاح</string>
+    <string name="statistics">📊 الإحصائيات</string>
+    <string name="stat_tested">🧾 تم اختبارها</string>
+    <string name="stat_success">✅ ناجحة</string>
+    <string name="stat_failure">❌ فاشلة</string>
+    <string name="stat_speed">⚡ السرعة</string>
+    <string name="stat_eta">⏳ الوقت المتبقي</string>
+    <string name="stat_success_rate">📈 نسبة النجاح</string>
+    <string name="start_test">▶️ بدء الاختبار</string>
+    <string name="stop_test">⏹️ إيقاف الاختبار</string>
+    <string name="export_results">📤 تصدير النتائج</string>
+    <string name="clear_log">🗑️ مسح السجل</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🏠 Home - عناصر إضافية للتصميم الجديد -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="connection_status_disconnected">🔴 غير متصل - أعد فتح الآداة</string>
+    <string name="router_file_label">📁 ملف الراوتر</string>
+    <string name="router_address">🌐 192.168.1.1:80 (http)</string>
+    <string name="router_type">🏢 MikroTik</string>
+    <string name="router_info_desc">💡 سيتم اختيار البطاقات على هذا الراوتر</string>
+    <string name="total_length_label">📏 الطول الكلي</string>
+    <string name="prefix_label">🔤 البادئة</string>
+    <string name="charset_label">🔣 الأحرف المستخدمة</string>
+    <string name="charset_used_label">🔣 الأحرف المستخدمة</string>
+    <string name="attempts_count_label">🔢 عدد المحاولات</string>
+    <string name="progress_label">📊 التقدم</string>
+    <string name="save_successful">💾 حفظ الناجح</string>
+    <string name="btn_save_successful">💾 حفظ الناجح (0)</string>
+    <string name="operation_log_label">📋 سجل العمليات</string>
+    <string name="btn_copy_log">📋 نسخ</string>
+    <string name="btn_clear_log">🗑️ مسح</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🧪 Test -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_test">🧪 اختبار البطاقات</string>
+    <string name="state_idle">💤 جاهز</string>
+    <string name="state_loading">⏳ جار التحميل…</string>
+    <string name="state_injecting">💉 جار الحقن…</string>
+    <string name="state_checking">🔍 جار الفحص…</string>
+    <string name="state_success">🎉 نجح</string>
+    <string name="state_failure">💥 فشل</string>
+    <string name="retry_dialog_title">🔄 إعادة المحاولة</string>
+    <string name="retry_dialog_message">💬 هل تريد إعادة محاولة الاختبار؟</string>
+    <string name="cancel_test_title">⚠️ إلغاء الاختبار</string>
+    <string name="cancel_test_message">❓ هل أنت متأكد من إلغاء الاختبار الحالي؟</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ⚙️ Settings -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_settings">⚙️ الإعدادات</string>
+    <string name="category_appearance">🎨 المظهر</string>
+    <string name="category_language">🌐 اللغة</string>
+    <string name="category_notifications">🔔 التنبيهات</string>
+    <string name="category_performance">🚀 الأداء</string>
+    <string name="category_data">💾 البيانات</string>
+    <string name="category_routers">📡 إدارة الراوترات</string>
+    <string name="manage_routers">📡 إدارة الراوترات</string>
+    <string name="theme">🎨 الثيم</string>
+    <string name="theme_light">☀️ فاتح</string>
+    <string name="theme_dark">🌙 داكن</string>
+    <string name="theme_system_default">📱 افتراضي النظام</string>
+    <string name="app_language">🌐 لغة التطبيق</string>
+    <string name="lang_arabic">🇸🇦 العربية</string>
+    <string name="lang_english">🇬🇧 English</string>
+    <string name="lang_system">⚙️ لغة النظام</string>
+    <string name="vibrate_on_success">📳 اهتزاز عند النجاح</string>
+    <string name="sound_on_success">🔊 صوت عند النجاح</string>
+    <string name="auto_export">🤖 تصدير تلقائي للنتائج</string>
+    <string name="thread_count">🧵 عدد المسارات المتوازية</string>
+    <string name="clear_history">🗑️ مسح السجلات</string>
+    <string name="export_db">💾 تصدير قاعدة البيانات</string>
+    <string name="version">🔖 الإصدار</string>
+    <string name="github">🐙 المشروع على GitHub</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 📡 Router Manager -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_router_manager">📡 إدارة الراوترات</string>
+    <string name="add_router">➕ إضافة راوتر</string>
+    <string name="edit_router">✏️ تعديل الراوتر</string>
+    <string name="delete_router">🗑️ حذف الراوتر</string>
+    <string name="test_router">🧪 اختبار الراوتر</string>
+    <string name="default_router">⭐ الراوتر الافتراضي</string>
+    <string name="router_name">🏷️ اسم الراوتر</string>
+    <string name="router_ip">🌐 عنوان IP</string>
+    <string name="router_port">🔌 المنفذ</string>
+    <string name="router_protocol">📋 البروتوكول</string>
+    <string name="router_username">👤 اسم المستخدم</string>
+    <string name="router_password">🔑 كلمة المرور</string>
+    <string name="router_login_path">🔗 مسار تسجيل الدخول</string>
+    <string name="router_username_selector">🎯 محدد اسم المستخدم</string>
+    <string name="router_password_selector">🎯 محدد كلمة المرور</string>
+    <string name="router_submit_selector">🎯 محدد زر الدخول</string>
+    <string name="router_success_indicator">✅ مؤشر النجاح</string>
+    <string name="router_failure_indicator">❌ مؤشر الفشل</string>
+    <string name="router_custom_js">📜 JavaScript مخصص</string>
+    <string name="router_active">🟢 نشط</string>
+    <string name="router_type_mikrotik">🏢 MikroTik</string>
+    <string name="router_type_local">🏠 راوتر محلي</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 📜 History -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_history">📜 السجلات</string>
+    <string name="filter">🔍 تصفية</string>
+    <string name="export">📤 تصدير</string>
+    <string name="import_results">📥 استيراد نتائج</string>
+    <string name="no_results">📭 لا توجد نتائج</string>
+    <string name="session_summary">📋 جلسة %1$d: %2$d بطاقة</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔤 Charsets -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="charset_numeric">🔢 أرقام</string>
+    <string name="charset_hex">🔢 ست عشري</string>
+    <string name="charset_alpha_upper">🔠 حروف كبيرة</string>
+    <string name="charset_alpha_lower">🔡 حروف صغيرة</string>
+    <string name="charset_all">🌐 الكل</string>
+    <string name="charset_custom">✏️ مخصص</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔘 Common -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="ok">✔️ موافق</string>
+    <string name="cancel">✖️ إلغاء</string>
+    <string name="save">💾 حفظ</string>
+    <string name="delete">🗑️ حذف</string>
+    <string name="confirm">✅ تأكيد</string>
+    <string name="close">🚫 إغلاق</string>
+    <string name="loading">⏳ جار التحميل…</string>
+    <string name="error">⚠️ خطأ</string>
+    <string name="success">🎉 تم بنجاح</string>
+    <string name="retry">🔄 إعادة المحاولة</string>
+    <string name="share">📤 مشاركة</string>
+    <string name="copy">📋 نسخ</string>
+    <string name="search">🔍 بحث</string>
+    <string name="yes">✔️ نعم</string>
+    <string name="no">✖️ لا</string>
+    <string name="back_press_exit">↩️ اضغط مرة أخرى للخروج</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔔 Notifications -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="notification_channel_test">📡 حالة الاختبار</string>
+    <string name="notification_channel_result">📊 نتائج الاختبار</string>
+    <string name="notification_test_title">🧪 اختبار البطاقات</string>
+    <string name="notification_pause">⏸️ إيقاف مؤقت</string>
+    <string name="notification_resume">▶️ استئناف</string>
+    <string name="notification_cancel">🚫 إلغاء</string>
+    <string name="notification_success_title">🎉 بطاقة ناجحة!</string>
+    <string name="notification_failure_title">⚠️ اختبار مكتمل</string>
+    <string name="notification_finished_title">🏁 انتهى الاختبار</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔐 Permissions -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="permission_notification_required">🔔 الإشعارات مطلوبة لتشغيل الاختبار في الخلفية</string>
+</resources>

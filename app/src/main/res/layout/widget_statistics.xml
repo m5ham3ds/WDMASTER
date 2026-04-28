@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Card"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:strokeColor="?attr/colorOnSurface"
+    app:strokeWidth="0.5dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/statistics"
+            android:textAppearance="@style/Text.Subtitle"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <com.wdmaster.app.widget.StatisticCard
+                android:id="@+id/stat_tested"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:statTitle="@string/stat_tested"
+                app:statValue="0"
+                app:statColor="@color/info"
+                app:statIcon="@drawable/ic_test" />
+
+            <com.wdmaster.app.widget.StatisticCard
+                android:id="@+id/stat_success"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:statTitle="@string/stat_success"
+                app:statValue="0"
+                app:statColor="@color/success"
+                app:statIcon="@drawable/ic_success" />
+
+            <com.wdmaster.app.widget.StatisticCard
+                android:id="@+id/stat_failure"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:statTitle="@string/stat_failure"
+                app:statValue="0"
+                app:statColor="@color/failure"
+                app:statIcon="@drawable/ic_failure" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/tv_speed"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textAppearance="@style/Text.Caption"
+                android:textColor="?attr/colorOnSurface"
+                android:text="0 c/s" />
+
+            <TextView
+                android:id="@+id/tv_eta"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textAppearance="@style/Text.Caption"
+                android:textColor="?attr/colorOnSurface"
+                android:text="--:--" />
+
+            <TextView
+                android:id="@+id/tv_success_rate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textAppearance="@style/Text.Caption"
+                android:textColor="?attr/colorOnSurface"
+                android:text="0%" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

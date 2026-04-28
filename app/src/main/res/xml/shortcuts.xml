@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="start_test"
+        android:enabled="true"
+        android:icon="@drawable/ic_play"
+        android:shortcutShortLabel="@string/start_test"
+        android:shortcutLongLabel="@string/start_test">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.wdmaster.app"
+            android:targetClass="com.wdmaster.app.presentation.MainActivity" />
+    </shortcut>
+</shortcuts>

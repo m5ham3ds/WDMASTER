@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🏷️ App Info -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="app_name">📶 WiFi Card Master Pro</string>
+    <string name="app_version">🔖 1.0.0</string>
+    <string name="app_developer">👨‍💻 WD Master Team</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🧭 Navigation -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="nav_home">🏠 Home</string>
+    <string name="nav_test">🧪 Test</string>
+    <string name="nav_history">📜 History</string>
+    <string name="nav_router_manager">📡 Router Manager</string>
+    <string name="nav_settings">⚙️ Settings</string>
+    <string name="nav_about">ℹ️ About</string>
+    <string name="nav_exit">🚪 Exit</string>
+    <string name="nav_menu">📋 Menu</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🏠 Home - General -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_home">🎴 Card Generator</string>
+    <string name="select_router">🔽 Select Router</string>
+    <string name="no_router_selected">⚠️ No router selected</string>
+    <string name="generation_settings">🛠️ Generation Settings</string>
+    <string name="prefix">🔤 Prefix</string>
+    <string name="length">📏 Length</string>
+    <string name="count">🔢 Card Count</string>
+    <string name="delay">⏱️ Delay (ms)</string>
+    <string name="retry_count">🔄 Retry Count</string>
+    <string name="advanced">⚡ Advanced Settings</string>
+    <string name="skip_tested">⏭️ Skip tested cards</string>
+    <string name="stop_on_success">🛑 Stop on first success</string>
+    <string name="statistics">📊 Statistics</string>
+    <string name="stat_tested">🧾 Tested</string>
+    <string name="stat_success">✅ Success</string>
+    <string name="stat_failure">❌ Failure</string>
+    <string name="stat_speed">⚡ Speed</string>
+    <string name="stat_eta">⏳ ETA</string>
+    <string name="stat_success_rate">📈 Success Rate</string>
+    <string name="start_test">▶️ Start Test</string>
+    <string name="stop_test">⏹️ Stop Test</string>
+    <string name="export_results">📤 Export Results</string>
+    <string name="clear_log">🗑️ Clear Log</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🏠 Home - New design elements -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="connection_status_disconnected">🔴 Disconnected - Reopen Tool</string>
+    <string name="router_file_label">📁 Router File</string>
+    <string name="router_address">🌐 192.168.1.1:80 (http)</string>
+    <string name="router_type">🏢 MikroTik</string>
+    <string name="router_info_desc">💡 Cards will be tested on this router</string>
+    <string name="total_length_label">📏 Total Length</string>
+    <string name="prefix_label">🔤 Prefix</string>
+    <string name="charset_label">🔣 Charset</string>
+    <string name="charset_used_label">🔣 Used Charset</string>
+    <string name="attempts_count_label">🔢 Attempts</string>
+    <string name="progress_label">📊 Progress</string>
+    <string name="save_successful">💾 Save Successful</string>
+    <string name="btn_save_successful">💾 Save Successful (0)</string>
+    <string name="operation_log_label">📋 Operation Log</string>
+    <string name="btn_copy_log">📋 Copy</string>
+    <string name="btn_clear_log">🗑️ Clear</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🧪 Test -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_test">🧪 Card Tester</string>
+    <string name="state_idle">💤 Idle</string>
+    <string name="state_loading">⏳ Loading…</string>
+    <string name="state_injecting">💉 Injecting…</string>
+    <string name="state_checking">🔍 Checking…</string>
+    <string name="state_success">🎉 Success</string>
+    <string name="state_failure">💥 Failure</string>
+    <string name="retry_dialog_title">🔄 Retry</string>
+    <string name="retry_dialog_message">💬 Do you want to retry the test?</string>
+    <string name="cancel_test_title">⚠️ Cancel Test</string>
+    <string name="cancel_test_message">❓ Are you sure you want to cancel?</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ⚙️ Settings -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_settings">⚙️ Settings</string>
+    <string name="category_appearance">🎨 Appearance</string>
+    <string name="category_language">🌐 Language</string>
+    <string name="category_notifications">🔔 Notifications</string>
+    <string name="category_performance">🚀 Performance</string>
+    <string name="category_data">💾 Data</string>
+    <string name="category_routers">📡 Router Management</string>
+    <string name="manage_routers">📡 Manage Routers</string>
+    <string name="theme">🎨 Theme</string>
+    <string name="theme_light">☀️ Light</string>
+    <string name="theme_dark">🌙 Dark</string>
+    <string name="theme_system_default">📱 System Default</string>
+    <string name="app_language">🌐 App Language</string>
+    <string name="lang_arabic">🇸🇦 العربية</string>
+    <string name="lang_english">🇬🇧 English</string>
+    <string name="lang_system">⚙️ System Language</string>
+    <string name="vibrate_on_success">📳 Vibrate on success</string>
+    <string name="sound_on_success">🔊 Sound on success</string>
+    <string name="auto_export">🤖 Auto export results</string>
+    <string name="thread_count">🧵 Parallel threads</string>
+    <string name="clear_history">🗑️ Clear history</string>
+    <string name="export_db">💾 Export database</string>
+    <string name="version">🔖 Version</string>
+    <string name="github">🐙 GitHub Project</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 📡 Router Manager -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_router_manager">📡 Router Manager</string>
+    <string name="add_router">➕ Add Router</string>
+    <string name="edit_router">✏️ Edit Router</string>
+    <string name="delete_router">🗑️ Delete Router</string>
+    <string name="test_router">🧪 Test Router</string>
+    <string name="default_router">⭐ Default Router</string>
+    <string name="router_name">🏷️ Router Name</string>
+    <string name="router_ip">🌐 IP Address</string>
+    <string name="router_port">🔌 Port</string>
+    <string name="router_protocol">📋 Protocol</string>
+    <string name="router_username">👤 Username</string>
+    <string name="router_password">🔑 Password</string>
+    <string name="router_login_path">🔗 Login Path</string>
+    <string name="router_username_selector">🎯 Username Selector</string>
+    <string name="router_password_selector">🎯 Password Selector</string>
+    <string name="router_submit_selector">🎯 Submit Selector</string>
+    <string name="router_success_indicator">✅ Success Indicator</string>
+    <string name="router_failure_indicator">❌ Failure Indicator</string>
+    <string name="router_custom_js">📜 Custom JavaScript</string>
+    <string name="router_active">🟢 Active</string>
+    <string name="router_type_mikrotik">🏢 MikroTik</string>
+    <string name="router_type_local">🏠 Local Router</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 📜 History -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="title_history">📜 History</string>
+    <string name="filter">🔍 Filter</string>
+    <string name="export">📤 Export</string>
+    <string name="import_results">📥 Import Results</string>
+    <string name="no_results">📭 No results</string>
+    <string name="session_summary">📋 Session %1$d: %2$d cards</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔤 Charsets -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="charset_numeric">🔢 Numeric</string>
+    <string name="charset_hex">🔢 Hex</string>
+    <string name="charset_alpha_upper">🔠 Alpha Upper</string>
+    <string name="charset_alpha_lower">🔡 Alpha Lower</string>
+    <string name="charset_all">🌐 All</string>
+    <string name="charset_custom">✏️ Custom</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔘 Common -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="ok">✔️ OK</string>
+    <string name="cancel">✖️ Cancel</string>
+    <string name="save">💾 Save</string>
+    <string name="delete">🗑️ Delete</string>
+    <string name="confirm">✅ Confirm</string>
+    <string name="close">🚫 Close</string>
+    <string name="loading">⏳ Loading…</string>
+    <string name="error">⚠️ Error</string>
+    <string name="success">🎉 Success</string>
+    <string name="retry">🔄 Retry</string>
+    <string name="share">📤 Share</string>
+    <string name="copy">📋 Copy</string>
+    <string name="search">🔍 Search</string>
+    <string name="yes">✔️ Yes</string>
+    <string name="no">✖️ No</string>
+    <string name="back_press_exit">↩️ Press back again to exit</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔔 Notifications -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="notification_channel_test">📡 Test Status</string>
+    <string name="notification_channel_result">📊 Test Results</string>
+    <string name="notification_test_title">🧪 Card Testing</string>
+    <string name="notification_pause">⏸️ Pause</string>
+    <string name="notification_resume">▶️ Resume</string>
+    <string name="notification_cancel">🚫 Cancel</string>
+    <string name="notification_success_title">🎉 Card Success!</string>
+    <string name="notification_failure_title">⚠️ Test Complete</string>
+    <string name="notification_finished_title">🏁 Test Finished</string>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔐 Permissions -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <string name="permission_notification_required">🔔 Notifications are required to run tests in background</string>
+</resources>

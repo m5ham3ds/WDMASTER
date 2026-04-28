@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom Toolbar Style Attribute -->
+    <attr name="toolbarStyle" format="reference" />
+
+    <!-- Statistic Card Attributes -->
+    <declare-styleable name="StatisticCard">
+        <attr name="statTitle" format="string" />
+        <attr name="statValue" format="string" />
+        <attr name="statColor" format="color" />
+        <attr name="statIcon" format="reference" />
+    </declare-styleable>
+
+    <!-- Log Entry Attributes -->
+    <declare-styleable name="LogTerminalView">
+        <attr name="logBackground" format="color" />
+        <attr name="logTextSize" format="dimension" />
+    </declare-styleable>
+
+    <!-- Connection Status View -->
+    <declare-styleable name="ConnectionStatusView">
+        <attr name="statusText" format="string" />
+        <attr name="statusColor" format="color" />
+    </declare-styleable>
+</resources>
