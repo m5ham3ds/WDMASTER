@@ -40,19 +40,53 @@ class WDMasterApp : Application(), KoinComponent {
             if (routers.isEmpty()) {
                 routerRepository.insertRouter(
                     RouterProfileEntity(
-                        name = "MikroTik (192.168.1.1)",
+                        name = "شبكة معتصم نت",
                         ip = "192.168.1.1",
                         port = 80,
                         protocol = "http",
-                        username = "admin",
+                        username = "",
                         password = "",
                         loginPath = "/login",
                         usernameSelector = "input[name=username]",
                         passwordSelector = "input[name=password]",
-                        submitSelector = "button[type=submit]",
-                        successIndicator = "status=ok",
-                        failureIndicator = "error=",
-                        customJs = null,
+                        submitSelector = "",  // لا نستخدمه، customJs يتولى الأمر
+                        successIndicator = "تفاصيل الأستخدام",
+                        failureIndicator = "ادخل الرمز",
+                        customJs = """
+                            function waitForReady() {
+                                return new Promise(resolve => {
+                                    if (document.readyState === 'complete') {
+                                        resolve();
+                                    } else {
+                                        window.addEventListener('load', resolve);
+                                    }
+                                });
+                            }
+
+                            waitForReady().then(() => {
+                                if (document.querySelector('input[name=username]')) {
+                                    var u = document.querySelector('input[name=username]');
+                                    var p = document.querySelector('input[name=password]');
+                                    if (!u || !p) { AndroidBridge.onResult('fields_not_found'); return; }
+                                    u.value = 'CARD_PLACEHOLDER';
+                                    p.value = '';
+                                    u.dispatchEvent(new Event('input', { bubbles: true }));
+                                    if (typeof doLogin === 'function') {
+                                        doLogin();
+                                        AndroidBridge.onResult('submitted');
+                                    }
+                                    return;
+                                }
+                                if (document.body.innerHTML.indexOf('تفاصيل الأستخدام') !== -1) {
+                                    var t = document.getElementById('timeLeft');
+                                    AndroidBridge.onResult('success|' + (t ? t.innerText : ''));
+                                    if (typeof openLogout === 'function') openLogout();
+                                    else { var b = document.querySelector('button[type=submit]'); if (b) b.click(); }
+                                    return;
+                                }
+                                AndroidBridge.onResult('failure');
+                            });
+                        """.trimIndent(),
                         authType = "FORM",
                         isActive = true,
                         isDefault = true
