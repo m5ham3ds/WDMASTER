@@ -46,8 +46,13 @@ class TestViewModel(
     var isPaused = false
         private set
 
-    // يُستخدم لإكمال انتظار تحميل الصفحة
-    var pageLoaded: CompletableDeferred<Unit> = CompletableDeferred()
+    // يُعاد إنشاؤه في كل دورة تحميل
+    private var _pageLoaded: CompletableDeferred<Unit>? = null
+    val pageLoaded: CompletableDeferred<Unit>
+        get() {
+            if (_pageLoaded == null) _pageLoaded = CompletableDeferred()
+            return _pageLoaded!!
+        }
 
     fun attachWebView(webView: WebView) {
         webViewRef = webView
@@ -90,10 +95,10 @@ class TestViewModel(
                 _testState.value = stateMachine.currentState
 
                 // 1. تحميل صفحة الدخول وانتظارها
-                pageLoaded = CompletableDeferred()
+                _pageLoaded = CompletableDeferred()
                 loadLoginPage(webView, router)
                 try {
-                    withTimeout(10000) { pageLoaded.await() }
+                    withTimeout(10000) { _pageLoaded?.await() }
                 } catch (_: Exception) {
                     stateMachine.transition(TestStateMachine.State.FAILURE)
                     _testState.value = stateMachine.currentState
@@ -102,38 +107,43 @@ class TestViewModel(
                     continue
                 }
 
-                // 2. حقن البطاقة (كتابة كود JavaScript فقط)
+                // 2. حقن البطاقة
                 stateMachine.transition(TestStateMachine.State.INJECTING_CARD)
                 _testState.value = stateMachine.currentState
                 val injectJs = buildInjectJs(router, card)
                 webView.evaluateJavascript(injectJs, null)
 
-                // 3. انتظار التنقل إلى صفحة النتيجة (أو بقاء نفس الصفحة)
-                pageLoaded = CompletableDeferred()
+                // 3. انتظار التنقل إلى صفحة النتيجة
+                _pageLoaded = CompletableDeferred()
                 try {
-                    withTimeout(10000) { pageLoaded.await() }
+                    withTimeout(10000) { _pageLoaded?.await() }
                 } catch (_: Exception) {
-                    // timeout – نعتبر الصفحة الحالية هي النتيجة
+                    // timeout – نستمر ونفحص الصفحة الحالية
                 }
 
-                // 4. فحص النتيجة في الصفحة الحالية
-                val result = checkResultInPage(webView, router)
+                // 4. فحص النتيجة
+                val resultChecker = ResultChecker()
+                val result = resultChecker.check(
+                    webView,
+                    router.successIndicator,
+                    router.failureIndicator
+                )
                 when (result) {
-                    InjectionManager.TestResult.SUCCESS -> {
+                    ResultChecker.Result.Success -> {
                         stateMachine.transition(TestStateMachine.State.SUCCESS)
                         patternLearningUseCase.learnFromSuccess(card, routerId, "")
                     }
-                    InjectionManager.TestResult.FAILURE -> {
+                    ResultChecker.Result.Failure -> {
                         stateMachine.transition(TestStateMachine.State.FAILURE)
                     }
-                    InjectionManager.TestResult.UNKNOWN -> {
+                    ResultChecker.Result.Unknown -> {
                         stateMachine.transition(TestStateMachine.State.FAILURE)
                     }
                 }
                 _testState.value = stateMachine.currentState
 
-                // 5. تسجيل الخروج
-                injectionManager.performLogout(webView, router.logoutSelector)
+                // 5. تسجيل الخروج (باستخدام null لتفعيل السلوك الافتراضي)
+                injectionManager.performLogout(webView, null)
                 delay(500)
 
                 currentProgress++
@@ -151,7 +161,6 @@ class TestViewModel(
         if (customJs.isNotEmpty()) {
             return customJs.replace("CARD_PLACEHOLDER", card)
         }
-        // كود افتراضي للحقن
         return """
             (function() {
                 var u = document.querySelector('${router.usernameSelector}');
@@ -166,26 +175,6 @@ class TestViewModel(
                 return 'selectors not found';
             })();
         """.trimIndent()
-    }
-
-    private fun checkResultInPage(webView: WebView, router: RouterProfileEntity): InjectionManager.TestResult {
-        // استخدم evaluateJavascript بشكل متزامن داخل coroutine
-        var result = InjectionManager.TestResult.UNKNOWN
-        val checker = ResultChecker()
-        runBlocking {
-            checker.check(
-                webView,
-                router.successIndicator,
-                router.failureIndicator
-            ) { checkResult ->
-                result = when (checkResult) {
-                    ResultChecker.Result.Success -> InjectionManager.TestResult.SUCCESS
-                    ResultChecker.Result.Failure -> InjectionManager.TestResult.FAILURE
-                    else -> InjectionManager.TestResult.UNKNOWN
-                }
-            }
-        }
-        return result
     }
 
     private fun updateNotification() {
@@ -233,8 +222,8 @@ class TestViewModel(
     fun onPageStarted() {}
     fun onPageFinished() {
         // إكمال pageLoaded عند تحميل أي صفحة جديدة
-        if (::pageLoaded.isInitialized && !pageLoaded.isCompleted) {
-            pageLoaded.complete(Unit)
+        _pageLoaded?.let {
+            if (!it.isCompleted) it.complete(Unit)
         }
         if (stateMachine.currentState == TestStateMachine.State.LOADING_PAGE) {
             stateMachine.transition(TestStateMachine.State.WAITING_DOM)
