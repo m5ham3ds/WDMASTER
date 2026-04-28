@@ -1,15 +1,16 @@
 package com.wdmaster.app.presentation.test
 
 import android.webkit.WebView
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class ResultChecker {
 
-    fun check(
+    suspend fun check(
         webView: WebView,
         successIndicator: String,
-        failureIndicator: String,
-        callback: (Result) -> Unit
-    ) {
+        failureIndicator: String
+    ): Result = suspendCancellableCoroutine { cont ->
         val js = """
             (function() {
                 var html = document.documentElement.outerHTML;
@@ -21,11 +22,12 @@ class ResultChecker {
 
         webView.evaluateJavascript(js) { result ->
             val cleanResult = result.trim('"').trim()
-            when {
-                cleanResult == "success" -> callback(Result.Success)
-                cleanResult == "failure" -> callback(Result.Failure)
-                else -> callback(Result.Unknown)
+            val finalResult = when {
+                cleanResult == "success" -> Result.Success
+                cleanResult == "failure" -> Result.Failure
+                else -> Result.Unknown
             }
+            cont.resume(finalResult)
         }
     }
 
