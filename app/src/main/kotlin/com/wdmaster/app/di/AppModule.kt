@@ -11,9 +11,6 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    // ── Application ───────────────────────────────
-    single { androidApplication() }
-
     // ── Room Database ─────────────────────────────
     single {
         Room.databaseBuilder(
