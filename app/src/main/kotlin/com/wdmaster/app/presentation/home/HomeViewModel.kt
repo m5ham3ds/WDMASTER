@@ -1,5 +1,10 @@
 package com.wdmaster.app.presentation.home
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import androidx.lifecycle.viewModelScope
 import com.wdmaster.app.data.local.entity.RouterProfileEntity
 import com.wdmaster.app.data.repository.CardRepository
@@ -14,6 +19,8 @@ import com.wdmaster.app.presentation.common.BaseViewModel
 import com.wdmaster.app.util.Constants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+
+enum class ConnectionState { CONNECTED, DISCONNECTED }
 
 class HomeViewModel(
     private val generateCardsUseCase: GenerateCardsUseCase,
@@ -62,7 +69,41 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
+    val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
+
     private var testJob: Job? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+
+    fun startMonitoringConnection(context: Context) {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val request = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                _connectionState.value = ConnectionState.CONNECTED
+            }
+            override fun onLost(network: Network) {
+                _connectionState.value = ConnectionState.DISCONNECTED
+            }
+        }
+        cm.registerNetworkCallback(request, networkCallback!!)
+        val currentNetwork = cm.activeNetwork
+        if (currentNetwork != null) {
+            val caps = cm.getNetworkCapabilities(currentNetwork)
+            if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                _connectionState.value = ConnectionState.CONNECTED
+            }
+        }
+    }
+
+    fun stopMonitoringConnection(context: Context) {
+        networkCallback?.let {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            cm.unregisterNetworkCallback(it)
+        }
+    }
 
     fun selectRouter(id: Long) { _selectedRouterId.value = id }
     fun updateLength(length: Int) { _length.value = length }
@@ -74,7 +115,6 @@ class HomeViewModel(
     fun updateSkipTested(skip: Boolean) { _skipTested.value = skip }
     fun updateStopOnSuccess(stop: Boolean) { _stopOnSuccess.value = stop }
 
-    /** يجهز البطاقات ويعيد المعرفات للانتقال إلى TestFragment */
     fun startRealTest(prefix: String, onTestReady: (Long, List<String>, Long) -> Unit) {
         val routerId = _selectedRouterId.value
         if (routerId == 0L) {
