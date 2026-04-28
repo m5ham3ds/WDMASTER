@@ -49,6 +49,7 @@
     <!-- ═══════════════════════════════════════════════ -->
     <!-- 🏠 Home - عناصر إضافية للتصميم الجديد -->
     <!-- ═══════════════════════════════════════════════ -->
+    <string name="connection_status_connected">🟢 متصل بالراوتر</string>
     <string name="connection_status_disconnected">🔴 غير متصل - أعد فتح الآداة</string>
     <string name="router_file_label">📁 ملف الراوتر</string>
     <string name="router_address">🌐 192.168.1.1:80 (http)</string>
