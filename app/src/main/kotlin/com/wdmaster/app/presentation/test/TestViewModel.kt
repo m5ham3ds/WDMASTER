@@ -46,7 +46,8 @@ class TestViewModel(
     var isPaused = false
         private set
 
-    val pageLoaded = CompletableDeferred<Unit>()
+    // يُعاد إنشاؤه في كل دورة تحميل
+    lateinit var pageLoaded: CompletableDeferred<Unit>
 
     fun startTest(routerId: Long, cardList: List<String>, delayMs: Long, webView: WebView?) {
         if (webView == null) return
@@ -82,11 +83,12 @@ class TestViewModel(
                 stateMachine.transition(TestStateMachine.State.LOADING_PAGE)
                 _testState.value = stateMachine.currentState
 
+                // تجهيز CompletableDeferred جديد
+                pageLoaded = CompletableDeferred()
                 loadLoginPage(webView, router)
 
                 try {
                     withTimeout(10000) { pageLoaded.await() }
-                    pageLoaded.reset()
                 } catch (_: Exception) {
                     stateMachine.transition(TestStateMachine.State.FAILURE)
                     _testState.value = stateMachine.currentState
@@ -104,10 +106,15 @@ class TestViewModel(
                     InjectionManager.TestResult.FAILURE -> {
                         stateMachine.transition(TestStateMachine.State.FAILURE)
                     }
+                    InjectionManager.TestResult.UNKNOWN -> {
+                        // تعامل مع الحالة غير المعروفة كفشل
+                        stateMachine.transition(TestStateMachine.State.FAILURE)
+                    }
                 }
                 _testState.value = stateMachine.currentState
 
-                injectionManager.performLogout(webView, router.logoutSelector ?: "button[type=submit]")
+                // لا يوجد logoutSelector في كيان الراوتر، نمرر null لتفعيل السلوك الافتراضي
+                injectionManager.performLogout(webView, null)
                 delay(500)
 
                 currentProgress++
@@ -164,7 +171,9 @@ class TestViewModel(
 
     fun onPageStarted() {}
     fun onPageFinished() {
-        if (!pageLoaded.isCompleted) pageLoaded.complete(Unit)
+        if (::pageLoaded.isInitialized && !pageLoaded.isCompleted) {
+            pageLoaded.complete(Unit)
+        }
         if (stateMachine.currentState == TestStateMachine.State.LOADING_PAGE) {
             stateMachine.transition(TestStateMachine.State.WAITING_DOM)
             _testState.value = stateMachine.currentState
