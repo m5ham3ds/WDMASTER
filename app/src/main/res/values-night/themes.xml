@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- Dark theme overlay -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <style name="Theme.WiFiCardMasterPro" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_light</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primary_dark</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+
+        <!-- Secondary colors (موحد مع الأزرق) -->
+        <item name="colorSecondary">@color/primary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/primary_dark</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+
+        <!-- Background & Surface -->
+        <item name="android:colorBackground">@color/dark_background</item>
+        <item name="colorSurface">@color/dark_surface</item>
+        <item name="colorOnSurface">@color/dark_text_primary</item>
+        <item name="colorOnBackground">@color/dark_text_primary</item>
+
+        <!-- Error -->
+        <item name="colorError">@color/failure</item>
+        <item name="colorOnError">@color/white</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/toolbar_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/dark_background</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Custom attributes -->
+        <item name="toolbarStyle">@style/Widget.Toolbar</item>
+    </style>
+
+    <style name="Theme.Dialog" parent="Theme.Material3.Dark.Dialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/dark_surface</item>
+    </style>
+</resources>

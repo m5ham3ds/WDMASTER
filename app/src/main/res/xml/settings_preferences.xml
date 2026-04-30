@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- إدارة الراوترات -->
+    <Preference
+        android:key="manage_routers"
+        android:title="@string/manage_routers"
+        android:summary="@string/nav_router_manager"
+        android:icon="@drawable/ic_router" />
+
+    <!-- المظهر -->
+    <PreferenceCategory android:title="@string/category_appearance">
+
+        <ListPreference
+            android:key="theme"
+            android:title="@string/theme"
+            android:dialogTitle="@string/theme"
+            android:entries="@array/theme_options"
+            android:entryValues="@array/theme_values"
+            android:icon="@drawable/ic_theme"
+            android:defaultValue="dark" />
+
+    </PreferenceCategory>
+
+    <!-- اللغة -->
+    <PreferenceCategory android:title="@string/category_language">
+
+        <ListPreference
+            android:key="app_language"
+            android:title="@string/app_language"
+            android:dialogTitle="@string/app_language"
+            android:entries="@array/language_options"
+            android:entryValues="@array/language_values"
+            android:icon="@drawable/ic_language"
+            android:defaultValue="system" />
+
+    </PreferenceCategory>
+
+    <!-- التنبيهات -->
+    <PreferenceCategory android:title="@string/category_notifications">
+
+        <SwitchPreferenceCompat
+            android:key="vibrate_on_success"
+            android:title="@string/vibrate_on_success"
+            android:icon="@drawable/ic_vibrate"
+            android:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            android:key="sound_on_success"
+            android:title="@string/sound_on_success"
+            android:icon="@drawable/ic_sound"
+            android:defaultValue="false" />
+
+        <SwitchPreferenceCompat
+            android:key="auto_export"
+            android:title="@string/auto_export"
+            android:icon="@drawable/ic_export"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <!-- الأداء -->
+    <PreferenceCategory android:title="@string/category_performance">
+
+        <SeekBarPreference
+            android:key="thread_count"
+            android:title="@string/thread_count"
+            android:icon="@drawable/ic_performance"
+            android:defaultValue="3"
+            android:min="1"
+            android:max="5" />
+
+    </PreferenceCategory>
+
+    <!-- البيانات -->
+    <PreferenceCategory android:title="@string/category_data">
+
+        <Preference
+            android:key="clear_history"
+            android:title="@string/clear_history"
+            android:icon="@drawable/ic_delete" />
+
+        <Preference
+            android:key="export_db"
+            android:title="@string/export_db"
+            android:icon="@drawable/ic_export" />
+
+    </PreferenceCategory>
+
+    <!-- حول -->
+    <PreferenceCategory android:title="@string/nav_about">
+
+        <Preference
+            android:key="version"
+            android:title="@string/version"
+            android:summary="1.0.0"
+            android:icon="@drawable/ic_info" />
+
+        <Preference
+            android:key="github"
+            android:title="@string/github"
+            android:icon="@drawable/ic_github" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

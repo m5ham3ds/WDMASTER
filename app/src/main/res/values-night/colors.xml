@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- تجاوزات الوضع الداكن للألوان الأساسية -->
+    <color name="chip_background">#FF333333</color>
+    <color name="chip_text">#FFFFFFFF</color>
+
+    <!-- ألوان البطاقات والأزرار الداكنة -->
+    <color name="dark_border">#FF333333</color>
+    <color name="dark_button_bg">#FF2A2A2A</color>
+
+    <!-- ألوان الحالات -->
+    <color name="disconnected">#FF5252</color>
+    <color name="success">#FF4CAF50</color>
+    <color name="failure">#FFF44336</color>
+    <color name="warning">#FFFF9800</color>
+    <color name="info">#FF9575CD</color>
+
+    <!-- ألوان مميزة -->
+    <color name="purple_500">#FF673AB7</color>
+    <color name="purple_700">#FF512DA8</color>
+    <color name="purple_deep">#FF7C4DFF</color>
+
+    <!-- سجل الأحداث -->
+    <color name="log_background">#FF1A1A1A</color>
+    <color name="log_text_default">#FFCCCCCC</color>
+    <color name="log_text_success">#FF4CAF50</color>
+    <color name="log_text_failure">#FFF44336</color>
+    <color name="log_text_info">#FF9575CD</color>
+    <color name="log_text_warning">#FFFF9800</color>
+    <color name="log_text_time">#FF888888</color>
+
+    <!-- عام -->
+    <color name="overlay_dark">#CC000000</color>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme Options -->
+    <string-array name="theme_options">
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+        <item>@string/theme_system_default</item>
+    </string-array>
+    <string-array name="theme_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+
+    <!-- Language Options -->
+    <string-array name="language_options">
+        <item>@string/lang_arabic</item>
+        <item>@string/lang_english</item>
+        <item>@string/lang_system</item>
+    </string-array>
+    <string-array name="language_values">
+        <item>ar</item>
+        <item>en</item>
+        <item>system</item>
+    </string-array>
+
+    <!-- Character Set Options -->
+    <string-array name="charset_options">
+        <item>@string/charset_numeric</item>
+        <item>@string/charset_hex</item>
+        <item>@string/charset_alpha_upper</item>
+        <item>@string/charset_alpha_lower</item>
+        <item>@string/charset_all</item>
+        <item>@string/charset_custom</item>
+    </string-array>
+
+    <!-- Thread Count Options -->
+    <string-array name="thread_options">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+</resources>

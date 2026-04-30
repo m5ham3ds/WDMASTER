@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_router"
+            android:textAppearance="@style/Text.Title"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="16dp" />
+
+        <!-- اسم الراوتر -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_name"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_router_name_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- IP -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_ip"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_router_ip_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Port -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_port"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_router_port_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Protocol -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_protocol"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_router_protocol_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Username -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_username"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_router_username_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_password"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_router_password_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- MD5 Salt -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="MD5 Salt (إن وجد)"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_md5_salt_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Login Path -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_login_path"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_router_login_path_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Username Selector -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_username_selector"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_username_selector_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password Selector -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_password_selector"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_password_selector_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Submit Selector -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_submit_selector"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_submit_selector_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Success Indicator -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_success_indicator"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_success_indicator_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Failure Indicator -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_failure_indicator"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_failure_indicator_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Logout Selector -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Logout Selector (CSS)"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_logout_selector_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Custom JS -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/router_custom_js"
+            android:layout_marginBottom="16dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_custom_js_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- أزرار الحفظ والإلغاء -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel_edit"
+                style="@style/Widget.Button.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="@string/cancel"
+                android:layout_marginEnd="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_edit"
+                style="@style/Widget.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="@string/save" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
