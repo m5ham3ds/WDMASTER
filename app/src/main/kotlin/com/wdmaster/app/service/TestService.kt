@@ -4,9 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.http.SslError
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.webkit.*
 import com.wdmaster.app.data.local.entity.RouterProfileEntity
 import com.wdmaster.app.data.local.entity.TestResultEntity
@@ -32,7 +36,8 @@ data class ServiceState(
     val failureCount: Int = 0,
     val isPaused: Boolean = false,
     val status: String = "IDLE",
-    val error: String? = null
+    val error: String? = null,
+    val screenshot: Bitmap? = null
 )
 
 class TestService : Service(), KoinComponent {
@@ -59,6 +64,10 @@ class TestService : Service(), KoinComponent {
 
     private var pageLoaded = CompletableDeferred<Unit>()
     private var pageError = false
+
+    // أدوات التصوير الدوري
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var screenshotJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -129,6 +138,7 @@ class TestService : Service(), KoinComponent {
     private fun startTesting() {
         if (totalCards == 0) return
         createWebView()
+        startScreenshotLoop() // بدء التقاط اللقطات
         startForegroundNotification()
         _serviceState.value = ServiceState(total = totalCards, status = "RUNNING")
 
@@ -158,18 +168,14 @@ class TestService : Service(), KoinComponent {
                 pageLoaded.await()
 
                 if (pageError) {
-                    // مشكلة في تحميل الصفحة → إيقاف الحلقة وعرض retry
                     _serviceState.value = _serviceState.value.copy(
                         status = "LOAD_ERROR",
                         error = "فشل تحميل صفحة الدخول",
                         currentCard = card
                     )
-                    // انتظر حتى retry أو cancel
                     while (_serviceState.value.status == "LOAD_ERROR" && isActive) delay(200)
                     if (_serviceState.value.status == "CANCELED" || !isActive) break
-                    // إذا retry، نعيد تحميل نفس الصفحة (نعيد نفس البطاقة)
-                    // نعدل العداد ليعيد هذه البطاقة
-                    continue  // ستتم إعادة الدورة لنفس البطاقة (index لن يزيد)
+                    continue
                 }
 
                 // حقن البطاقة
@@ -220,6 +226,7 @@ class TestService : Service(), KoinComponent {
             finishSessionSafe()
             _serviceState.value = ServiceState(status = "FINISHED")
             notificationHelper.showResultNotification("Test Finished", "Completed $currentProgress/$totalCards cards", true)
+            stopScreenshotLoop()
             stopForeground(STOP_FOREGROUND_DETACH)
             stopSelf()
         }
@@ -253,12 +260,12 @@ class TestService : Service(), KoinComponent {
         serviceScope.launch { finishSessionSafe() }
         notificationHelper.cancelTestNotification()
         _serviceState.value = ServiceState(status = "STOPPED")
+        stopScreenshotLoop()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
     fun retryLoad() {
-        // يُستدعى عند الضغط على "إعادة تحميل" في الحوار
         _serviceState.value = _serviceState.value.copy(status = "RUNNING", error = null)
     }
 
@@ -275,7 +282,37 @@ class TestService : Service(), KoinComponent {
         }
     }
 
+    // --- نظام اللقطات الدورية ---
+    private fun startScreenshotLoop() {
+        if (screenshotJob?.isActive == true) return
+        screenshotJob = serviceScope.launch {
+            while (isActive) {
+                val bitmap = withContext(Dispatchers.Main) { captureScreenshot() }
+                _serviceState.value = _serviceState.value.copy(screenshot = bitmap)
+                delay(500) // التقاط كل نصف ثانية
+            }
+        }
+    }
+
+    private fun stopScreenshotLoop() {
+        screenshotJob?.cancel()
+        _serviceState.value = _serviceState.value.copy(screenshot = null)
+    }
+
+    private fun captureScreenshot(): Bitmap? {
+        val wv = webView ?: return null
+        return try {
+            val bitmap = Bitmap.createBitmap(wv.width, wv.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            wv.draw(canvas)
+            bitmap
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     override fun onDestroy() {
+        stopScreenshotLoop()
         serviceScope.cancel()
         webView?.destroy()
         super.onDestroy()
