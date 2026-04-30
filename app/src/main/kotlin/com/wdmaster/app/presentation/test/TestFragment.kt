@@ -3,6 +3,7 @@ package com.wdmaster.app.presentation.test
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -125,11 +126,19 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
         if (state == null || state.status == "IDLE" || state.status == "STOPPED") {
             binding.tvStateOverlay.visibility = View.GONE
             binding.progressLoading.visibility = View.GONE
+            binding.ivScreenshot.visibility = View.GONE
             return
         }
 
+        // تحميل اللقطة الحية
+        if (state.screenshot != null) {
+            binding.ivScreenshot.setImageBitmap(state.screenshot)
+            binding.ivScreenshot.visibility = View.VISIBLE
+        } else {
+            binding.ivScreenshot.visibility = View.GONE
+        }
+
         if (state.status == "LOAD_ERROR") {
-            // عرض حوار retry تلقائياً
             if (!isRetryDialogVisible) {
                 isRetryDialogVisible = true
                 showRetryDialog(state.error ?: "فشل تحميل الصفحة. أعد المحاولة؟")
@@ -160,12 +169,8 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
         MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Dialog)
             .setTitle("خطأ تحميل")
             .setMessage(message)
-            .setPositiveButton("إعادة تحميل") { _, _ ->
-                viewModel.retryLoad()
-            }
-            .setNegativeButton("إلغاء الاختبار") { _, _ ->
-                viewModel.cancelTest()
-            }
+            .setPositiveButton("إعادة تحميل") { _, _ -> viewModel.retryLoad() }
+            .setNegativeButton("إلغاء الاختبار") { _, _ -> viewModel.cancelTest() }
             .setCancelable(false)
             .show()
     }
@@ -174,9 +179,7 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
         MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Dialog)
             .setTitle("إلغاء الاختبار")
             .setMessage("هل أنت متأكد من إلغاء الاختبار الحالي؟")
-            .setPositiveButton("نعم") { _, _ ->
-                viewModel.cancelTest()
-            }
+            .setPositiveButton("نعم") { _, _ -> viewModel.cancelTest() }
             .setNegativeButton("لا", null)
             .show()
     }
