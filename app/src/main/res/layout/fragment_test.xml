@@ -18,6 +18,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- لقطة الشاشة الحية (تعرض WebView من الخدمة) -->
+    <ImageView
+        android:id="@+id/iv_screenshot"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="fitCenter"
+        android:background="@drawable/bg_state_overlay"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/tv_state_overlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress_loading" />
+
     <!-- عنوان الحالة أو الرسالة (منتصف الشاشة) -->
     <TextView
         android:id="@+id/tv_state_overlay"
@@ -37,7 +51,7 @@
         app:layout_constraintBottom_toTopOf="@+id/button_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/progress_loading" />
+        app:layout_constraintTop_toBottomOf="@id/iv_screenshot" />
 
     <!-- حاوية الأزرار (أسفل الشاشة) -->
     <LinearLayout
