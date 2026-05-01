@@ -1,5 +1,6 @@
 package com.wdmaster.app.presentation.history
 
+import android.os.Environment
 import androidx.lifecycle.viewModelScope
 import com.wdmaster.app.data.local.entity.TestResultEntity
 import com.wdmaster.app.data.local.entity.TestSessionEntity
@@ -9,6 +10,7 @@ import com.wdmaster.app.domain.usecase.ExportResultsUseCase
 import com.wdmaster.app.presentation.common.BaseViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.File
 
 class HistoryViewModel(
     private val testResultRepository: TestResultRepository,
@@ -21,14 +23,14 @@ class HistoryViewModel(
 
     private val _selectedSessionId = MutableStateFlow<Long?>(null)
     private val _allResults = MutableStateFlow<List<TestResultEntity>>(emptyList())
-    private val _currentFilter = MutableStateFlow("all") // all, success, failure
+    private val _currentFilter = MutableStateFlow("all")
 
     val filteredResults: StateFlow<List<TestResultEntity>> = combine(
         _allResults, _currentFilter
     ) { results, filter ->
         when (filter) {
             "success" -> results.filter { it.state == "Success" }
-            "failure" -> results.filter { it.state == "Failure" }
+            "failure" -> results.filter { it.state == "Failure" || it.state == "Connection Error" || it.state == "Unknown" }
             else -> results
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -52,16 +54,25 @@ class HistoryViewModel(
 
     fun applyFilter(status: String) {
         _currentFilter.value = status
-        // إعادة تطبيق على النتائج الحالية (تلقائي عبر combine)
     }
 
     fun exportToFile(fileName: String) {
         viewModelScope.launch {
-            // نستخدم مجلد مؤقت داخلي
-            val dir = java.io.File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS), "WiFiCardMaster")
-            dir.mkdirs()
-            val file = java.io.File(dir, fileName)
-            exportResultsUseCase.invoke(file)
+            try {
+                val dir = File(Environment.getExternalStorageDirectory(), "WIFITON")
+                if (!dir.exists()) dir.mkdirs()
+                val result = exportResultsUseCase.invoke(dir, fileName)
+                when (result) {
+                    is ExportResultsUseCase.Result.Success -> {
+                        // يمكن إرسال حدث نجاح
+                    }
+                    is ExportResultsUseCase.Result.Error -> {
+                        // يمكن إرسال حدث خطأ
+                    }
+                }
+            } catch (e: Exception) {
+                // معالجة الخطأ
+            }
         }
     }
 }
