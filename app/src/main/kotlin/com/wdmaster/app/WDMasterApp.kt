@@ -23,7 +23,6 @@ class WDMasterApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
         CrashLogger.init(this)
         AppLogger.init(this)
 
@@ -60,9 +59,7 @@ class WDMasterApp : Application() {
         appScope.launch {
             try {
                 val routerRepository: RouterRepository by inject(RouterRepository::class.java)
-
                 val routers = routerRepository.allRouters.first()
-
                 if (routers.isEmpty()) {
                     routerRepository.insertRouter(
                         RouterProfileEntity(
@@ -70,25 +67,18 @@ class WDMasterApp : Application() {
                             ip = "10.0.0.1",
                             port = 80,
                             protocol = "http",
-
                             username = "",
                             password = "",
-
                             loginPath = "/login",
-
                             // ✅ محددات دقيقة
                             usernameSelector = "#username",
                             passwordSelector = "input[name=password]",
-
                             // ❗ نتركه فارغ لأننا سنستخدم doLogin
                             submitSelector = "",
-
                             successIndicator = "تفاصيل الأستخدام",
                             failureIndicator = "ادخل الرمز",
-
                             customJs = """
                                 (function() {
-
                                     function waitForReady(callback) {
                                         if (document.readyState === 'complete') {
                                             callback();
@@ -98,7 +88,6 @@ class WDMasterApp : Application() {
                                     }
 
                                     waitForReady(function() {
-
                                         var usernameField = document.querySelector('#username');
                                         var passwordField = document.querySelector('input[name=password]');
 
@@ -107,7 +96,6 @@ class WDMasterApp : Application() {
                                             usernameField.value = 'CARD_PLACEHOLDER';
                                             usernameField.dispatchEvent(new Event('input', { bubbles: true }));
                                         }
-
                                         if (passwordField) {
                                             passwordField.value = '';
                                         }
@@ -129,10 +117,9 @@ class WDMasterApp : Application() {
                                         // ❗ fallback
                                         AndroidBridge.onResult('no_form');
 
-                                        // ✅ تحقق من النجاح
+                                        // ✅ تحقق من النجاح بعد 2 ثانية
                                         setTimeout(function() {
                                             var text = document.body.innerText || '';
-
                                             if (text.includes('تفاصيل الأستخدام') || text.includes('نجاح')) {
                                                 AndroidBridge.onResult('success');
 
@@ -143,27 +130,20 @@ class WDMasterApp : Application() {
                                                     var logoutBtn = document.querySelector('a[href*="logout"], button');
                                                     if (logoutBtn) logoutBtn.click();
                                                 }
-
                                             } else if (text.includes('ادخل الرمز')) {
                                                 AndroidBridge.onResult('failure');
                                             }
-
                                         }, 2000);
-
                                     });
-
                                 })();
                             """.trimIndent(),
-
                             authType = "FORM",
                             isActive = true,
                             isDefault = true
                         )
                     )
-
                     AppLogger.i("WDMasterApp", "Default router inserted successfully")
                 }
-
             } catch (e: Exception) {
                 AppLogger.log("ERROR", "WDMasterApp", "Failed to insert default router", e)
             }
