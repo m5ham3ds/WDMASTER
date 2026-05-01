@@ -1,6 +1,7 @@
 package com.wdmaster.app
 
 import android.app.Application
+import android.content.res.Configuration
 import com.wdmaster.app.data.local.entity.RouterProfileEntity
 import com.wdmaster.app.data.repository.RouterRepository
 import com.wdmaster.app.di.appModule
@@ -11,15 +12,18 @@ import com.wdmaster.app.util.LocaleHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.context.startKoin
+import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
 
-class WDMasterApp : Application(), KoinComponent {
+class WDMasterApp : Application() {
+
+    // ✅ سكوب منظم بدل GlobalScope
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
+
         CrashLogger.init(this)
         AppLogger.init(this)
 
@@ -48,83 +52,131 @@ class WDMasterApp : Application(), KoinComponent {
 
         LocaleHelper.setLocale(this, LocaleHelper.getPersistedLocale(this))
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val routerRepository: RouterRepository by inject()
-            val routers = routerRepository.allRouters.first()
-            if (routers.isEmpty()) {
-                routerRepository.insertRouter(
-                    RouterProfileEntity(
-                        name = "شبكة معتصم نت",
-                        ip = "192.168.1.1",
-                        port = 80,
-                        protocol = "http",
-                        username = "",
-                        password = "",
-                        loginPath = "/login",
-                        usernameSelector = "input[name=username]",
-                        passwordSelector = "input[name=password]",
-                        submitSelector = "",
-                        successIndicator = "تفاصيل الأستخدام",
-                        failureIndicator = "ادخل الرمز",
-                        customJs = """
-                            (function() {
-                                // انتظر تحميل الصفحة
-                                function waitForReady() {
-                                    return new Promise(resolve => {
-                                        if (document.readyState === 'complete') resolve();
-                                        else window.addEventListener('load', resolve);
-                                    });
-                                }
+        // ✅ إدخال الراوتر الافتراضي
+        insertDefaultRouterIfNeeded()
+    }
 
-                                waitForReady().then(() => {
-                                    // 1. البحث عن حقول الدخول
-                                    var u = document.querySelector('input[name=username]');
-                                    var p = document.querySelector('input[name=password]');
-                                    if (u && p) {
-                                        u.value = 'CARD_PLACEHOLDER';
-                                        p.value = '';
-                                        u.dispatchEvent(new Event('input', { bubbles: true }));
+    private fun insertDefaultRouterIfNeeded() {
+        appScope.launch {
+            try {
+                val routerRepository: RouterRepository by inject(RouterRepository::class.java)
 
+                val routers = routerRepository.allRouters.first()
+
+                if (routers.isEmpty()) {
+                    routerRepository.insertRouter(
+                        RouterProfileEntity(
+                            name = "شبكة معتصم نت",
+                            ip = "192.168.1.1",
+                            port = 80,
+                            protocol = "http",
+
+                            username = "",
+                            password = "",
+
+                            loginPath = "/login",
+
+                            // ✅ محددات دقيقة
+                            usernameSelector = "#username",
+                            passwordSelector = "input[name=password]",
+
+                            // ❗ نتركه فارغ لأننا سنستخدم doLogin
+                            submitSelector = "",
+
+                            successIndicator = "تفاصيل الأستخدام",
+                            failureIndicator = "ادخل الرمز",
+
+                            customJs = """
+                                (function() {
+
+                                    function waitForReady(callback) {
+                                        if (document.readyState === 'complete') {
+                                            callback();
+                                        } else {
+                                            window.addEventListener('load', callback);
+                                        }
+                                    }
+
+                                    waitForReady(function() {
+
+                                        var usernameField = document.querySelector('#username');
+                                        var passwordField = document.querySelector('input[name=password]');
+
+                                        // ✅ حقن البطاقة
+                                        if (usernameField) {
+                                            usernameField.value = 'CARD_PLACEHOLDER';
+                                            usernameField.dispatchEvent(new Event('input', { bubbles: true }));
+                                        }
+
+                                        if (passwordField) {
+                                            passwordField.value = '';
+                                        }
+
+                                        // ✅ تسجيل الدخول الحقيقي
                                         if (typeof doLogin === 'function') {
                                             doLogin();
                                             AndroidBridge.onResult('submitted');
-                                        } else {
-                                            var f = document.forms['login'] || document.forms[0];
-                                            if (f) { f.submit(); AndroidBridge.onResult('submitted'); }
-                                            else AndroidBridge.onResult('no_form');
+                                            return;
                                         }
-                                        return;
-                                    }
 
-                                    // 2. البحث عن مؤشرات النجاح
-                                    var bodyHTML = document.body.innerHTML;
-                                    if (bodyHTML.indexOf('تفاصيل الأستخدام') !== -1 || bodyHTML.indexOf('نجاح') !== -1) {
-                                        AndroidBridge.onResult('success');
-                                        if (typeof openLogout === 'function') openLogout();
-                                        else {
-                                            var logoutBtn = document.querySelector('a[href*="logout"], button');
-                                            if (logoutBtn) logoutBtn.click();
+                                        var form = document.forms['login'] || document.forms[0];
+                                        if (form) {
+                                            form.submit();
+                                            AndroidBridge.onResult('submitted');
+                                            return;
                                         }
-                                        return;
-                                    }
 
-                                    // 3. فشل
-                                    AndroidBridge.onResult('failure');
-                                });
-                            })();
-                        """.trimIndent(),
-                        authType = "FORM",
-                        isActive = true,
-                        isDefault = true
+                                        // ❗ fallback
+                                        AndroidBridge.onResult('no_form');
+
+                                        // ✅ تحقق من النجاح
+                                        setTimeout(function() {
+                                            var text = document.body.innerText || '';
+
+                                            if (text.includes('تفاصيل الأستخدام') || text.includes('نجاح')) {
+                                                AndroidBridge.onResult('success');
+
+                                                // تسجيل خروج
+                                                if (typeof openLogout === 'function') {
+                                                    openLogout();
+                                                } else {
+                                                    var logoutBtn = document.querySelector('a[href*="logout"], button');
+                                                    if (logoutBtn) logoutBtn.click();
+                                                }
+
+                                            } else if (text.includes('ادخل الرمز')) {
+                                                AndroidBridge.onResult('failure');
+                                            }
+
+                                        }, 2000);
+
+                                    });
+
+                                })();
+                            """.trimIndent(),
+
+                            authType = "FORM",
+                            isActive = true,
+                            isDefault = true
+                        )
                     )
-                )
-                AppLogger.i("WDMasterApp", "Default router inserted successfully")
+
+                    AppLogger.i("WDMasterApp", "Default router inserted successfully")
+                }
+
+            } catch (e: Exception) {
+                AppLogger.log("ERROR", "WDMasterApp", "Failed to insert default router", e)
             }
         }
     }
 
-    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         LocaleHelper.onConfigurationChanged(this)
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        appScope.cancel() // ✅ تنظيف
     }
 }
