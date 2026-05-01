@@ -3,7 +3,6 @@ package com.wdmaster.app.presentation.test
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -42,11 +41,9 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // مراقبة حالة الخدمة
         lifecycleScope.launch {
-            viewModel.serviceState.collectLatest { state ->
-                updateOverlay(state)
-                updateButtons(state)
-            }
+            viewModel.serviceState.collectLatest { state -> updateOverlay(state) }
         }
         lifecycleScope.launch {
             viewModel.uiEvent.collectLatest { event ->
@@ -69,84 +66,30 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
         startTest()
     }
 
-    private fun updateButtons(state: ServiceState?) {
-        binding.btnPause.visibility = if (state != null && state.status == "RUNNING") View.VISIBLE else View.GONE
-        binding.btnResume.visibility = if (state != null && state.status == "PAUSED") View.VISIBLE else View.GONE
-        binding.btnCancel.visibility = if (state != null && (state.status == "RUNNING" || state.status == "PAUSED" || state.status == "LOAD_ERROR")) View.VISIBLE else View.GONE
-    }
-
-    private fun startTest() {
-        arguments?.let { args ->
-            val routerId = args.getLong("routerId", 0L)
-            val cardList = args.getStringArrayList("cardList") ?: arrayListOf()
-            val delayMs = args.getLong("delayMs", 500L)
-            if (routerId != 0L && cardList.isNotEmpty()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        return
-                    }
-                }
-                viewModel.saveTestConfig(routerId, cardList, delayMs)
-
-                val intent = Intent(requireContext(), TestService::class.java).apply {
-                    action = TestService.ACTION_START
-                    putExtra(TestService.EXTRA_ROUTER_ID, routerId)
-                    putStringArrayListExtra(TestService.EXTRA_CARD_LIST, ArrayList(cardList))
-                    putExtra(TestService.EXTRA_DELAY_MS, delayMs)
-                }
-                requireContext().startService(intent)
-
-                serviceConnection = object : ServiceConnection {
-                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                        testService = (service as ServiceBinder).getService()
-                        lifecycleScope.launch {
-                            testService?.serviceState?.collect { state ->
-                                viewModel.updateServiceState(state)
-                            }
-                        }
-                    }
-                    override fun onServiceDisconnected(name: ComponentName?) {
-                        testService = null
-                        viewModel.updateServiceState(null)
-                    }
-                }
-                requireContext().bindService(intent, serviceConnection!!, Context.BIND_AUTO_CREATE)
-            }
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        serviceConnection?.let { requireContext().unbindService(it) }
-        serviceConnection = null
-    }
-
     private fun updateOverlay(state: ServiceState?) {
-        if (state == null || state.status == "IDLE" || state.status == "STOPPED") {
-            binding.tvStateOverlay.visibility = View.GONE
-            binding.progressLoading.visibility = View.GONE
-            binding.ivScreenshot.visibility = View.GONE
-            return
-        }
-
-        // تحميل اللقطة الحية
-        if (state.screenshot != null) {
+        // عرض اللقطة إذا وجدت
+        if (state?.screenshot != null) {
             binding.ivScreenshot.setImageBitmap(state.screenshot)
             binding.ivScreenshot.visibility = View.VISIBLE
         } else {
             binding.ivScreenshot.visibility = View.GONE
         }
 
-        if (state.status == "LOAD_ERROR") {
-            if (!isRetryDialogVisible) {
-                isRetryDialogVisible = true
-                showRetryDialog(state.error ?: "فشل تحميل الصفحة. أعد المحاولة؟")
-            }
-        } else {
-            isRetryDialogVisible = false
+        if (state == null || state.status == "IDLE" || state.status == "STOPPED") {
+            binding.tvStateOverlay.visibility = View.GONE
+            binding.progressLoading.visibility = View.GONE
+            binding.btnPause.visibility = View.GONE
+            binding.btnResume.visibility = View.GONE
+            binding.btnCancel.visibility = View.GONE
+            return
         }
 
+        // أزرار التحكم
+        binding.btnPause.visibility = if (state.status == "RUNNING") View.VISIBLE else View.GONE
+        binding.btnResume.visibility = if (state.status == "PAUSED") View.VISIBLE else View.GONE
+        binding.btnCancel.visibility = if (state.status in listOf("RUNNING", "PAUSED", "LOAD_ERROR")) View.VISIBLE else View.GONE
+
+        // نص الحالة
         val progressPercent = if (state.total > 0) "${(state.progress * 100) / state.total}%" else ""
         val text = buildString {
             appendLine("الحالة: ${when (state.status) {
@@ -163,6 +106,60 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
         binding.tvStateOverlay.text = text
         binding.tvStateOverlay.visibility = View.VISIBLE
         binding.progressLoading.visibility = if (state.status == "RUNNING") View.VISIBLE else View.GONE
+
+        // حوار خطأ التحميل
+        if (state.status == "LOAD_ERROR" && !isRetryDialogVisible) {
+            isRetryDialogVisible = true
+            showRetryDialog(state.error ?: "فشل تحميل الصفحة")
+        }
+        if (state.status != "LOAD_ERROR") isRetryDialogVisible = false
+    }
+
+    private fun startTest() {
+        arguments?.let { args ->
+            val routerId = args.getLong("routerId", 0L)
+            val cardList = args.getStringArrayList("cardList") ?: arrayListOf()
+            val delayMs = args.getLong("delayMs", 500L)
+            if (routerId != 0L && cardList.isNotEmpty()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        return
+                    }
+                }
+                viewModel.saveTestConfig(routerId, cardList, delayMs)
+                val intent = Intent(requireContext(), TestService::class.java).apply {
+                    action = TestService.ACTION_START
+                    putExtra(TestService.EXTRA_ROUTER_ID, routerId)
+                    putStringArrayListExtra(TestService.EXTRA_CARD_LIST, ArrayList(cardList))
+                    putExtra(TestService.EXTRA_DELAY_MS, delayMs)
+                }
+                requireContext().startService(intent)
+                bindToService(intent)
+            }
+        }
+    }
+
+    private fun bindToService(intent: Intent) {
+        serviceConnection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                testService = (service as ServiceBinder).getService()
+                lifecycleScope.launch {
+                    testService?.serviceState?.collect { state -> viewModel.updateServiceState(state) }
+                }
+            }
+            override fun onServiceDisconnected(name: ComponentName?) {
+                testService = null
+                viewModel.updateServiceState(null)
+            }
+        }
+        requireContext().bindService(intent, serviceConnection!!, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        serviceConnection?.let { requireContext().unbindService(it) }
+        serviceConnection = null
     }
 
     private fun showRetryDialog(message: String) {
@@ -178,7 +175,7 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
     private fun showCancelDialog() {
         MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Dialog)
             .setTitle("إلغاء الاختبار")
-            .setMessage("هل أنت متأكد من إلغاء الاختبار الحالي؟")
+            .setMessage("هل أنت متأكد من إلغاء الاختبار؟")
             .setPositiveButton("نعم") { _, _ -> viewModel.cancelTest() }
             .setNegativeButton("لا", null)
             .show()
