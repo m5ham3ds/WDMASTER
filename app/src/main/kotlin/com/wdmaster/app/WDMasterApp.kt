@@ -67,7 +67,7 @@ class WDMasterApp : Application() {
                     routerRepository.insertRouter(
                         RouterProfileEntity(
                             name = "شبكة معتصم نت",
-                            ip = "192.168.1.1",
+                            ip = "10.0.0.1",
                             port = 80,
                             protocol = "http",
 
