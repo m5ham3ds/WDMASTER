@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wdmaster.app.databinding.FragmentHistoryBinding
@@ -43,6 +44,18 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
         lifecycleScope.launch {
             viewModel.filteredResults.collectLatest { results ->
                 resultAdapter.submitList(results)
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.exportEvent.collectLatest { event ->
+                when (event) {
+                    is HistoryViewModel.ExportEvent.Success -> {
+                        Toast.makeText(requireContext(), "تم التصدير إلى: ${event.filePath}", Toast.LENGTH_LONG).show()
+                    }
+                    is HistoryViewModel.ExportEvent.Error -> {
+                        Toast.makeText(requireContext(), "فشل التصدير: ${event.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
             }
         }
 
