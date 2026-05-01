@@ -35,12 +35,11 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
             .replace(R.id.settings_container, SettingsPreferenceFragment())
             .commit()
 
-        // مراقبة أحداث ViewModel
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiEvent.collectLatest { event ->
                 when (event) {
                     is SettingsViewModel.UiEvent.NavigateToRouterManager -> {
-                        findNavController().navigate(R.id.nav_router_manager)
+                        findNavController().navigate(R.id.nav_router_manager_fragment)
                     }
                     is SettingsViewModel.UiEvent.ShowClearHistoryDialog -> {
                         showClearHistoryDialog()
@@ -53,7 +52,7 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
                         startActivity(intent)
                     }
                     is SettingsViewModel.UiEvent.ExportDatabase -> {
-                        // يمكن ربطه مع HistoryViewModel أو استخدام ExportResultsUseCase
+                        // يمكن ربطه مع HistoryViewModel
                     }
                 }
             }
@@ -63,24 +62,20 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
     private fun showClearHistoryDialog() {
         MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Dialog)
             .setTitle("مسح جميع السجلات")
-            .setMessage("هل أنت متأكد من حذف جميع الجلسات والنتائج بشكل دائم؟ لا يمكن التراجع عن هذا الإجراء.")
-            .setPositiveButton("نعم، امسح الكل") { _, _ ->
-                viewModel.confirmClearHistory()
-            }
+            .setMessage("هل أنت متأكد من حذف جميع الجلسات والنتائج بشكل دائم؟")
+            .setPositiveButton("نعم، امسح الكل") { _, _ -> viewModel.confirmClearHistory() }
             .setNegativeButton("إلغاء", null)
             .show()
     }
 
     class SettingsPreferenceFragment : PreferenceFragmentCompat() {
-
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.settings_preferences, rootKey)
 
             val parentFragment = this.parentFragment as? SettingsFragment
             val viewModel = parentFragment?.viewModel ?: return
 
-            val themePref = findPreference<ListPreference>("theme")
-            themePref?.setOnPreferenceChangeListener { _, newValue ->
+            findPreference<ListPreference>("theme")?.setOnPreferenceChangeListener { _, newValue ->
                 val mode = newValue as String
                 viewModel.setThemeMode(mode)
                 ThemeManager.applyTheme(mode)
@@ -88,35 +83,30 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
                 true
             }
 
-            val languagePref = findPreference<ListPreference>("app_language")
-            languagePref?.setOnPreferenceChangeListener { _, newValue ->
+            findPreference<ListPreference>("app_language")?.setOnPreferenceChangeListener { _, newValue ->
                 viewModel.setAppLanguage(newValue as String)
                 requireActivity().recreate()
                 true
             }
 
-            val manageRoutersPref = findPreference<Preference>("manage_routers")
-            manageRoutersPref?.setOnPreferenceClickListener {
+            findPreference<Preference>("manage_routers")?.setOnPreferenceClickListener {
                 viewModel.navigateToRouterManager()
                 true
             }
 
-            val clearHistoryPref = findPreference<Preference>("clear_history")
-            clearHistoryPref?.setOnPreferenceClickListener {
+            findPreference<Preference>("clear_history")?.setOnPreferenceClickListener {
                 viewModel.clearHistory()
                 true
             }
 
-            val exportDbPref = findPreference<Preference>("export_db")
-            exportDbPref?.setOnPreferenceClickListener {
+            findPreference<Preference>("export_db")?.setOnPreferenceClickListener {
                 viewModel.exportDatabase()
                 true
             }
 
             findPreference<Preference>("version")?.summary = "1.0.0"
 
-            val githubPref = findPreference<Preference>("github")
-            githubPref?.setOnPreferenceClickListener {
+            findPreference<Preference>("github")?.setOnPreferenceClickListener {
                 viewModel.openGitHub()
                 true
             }
