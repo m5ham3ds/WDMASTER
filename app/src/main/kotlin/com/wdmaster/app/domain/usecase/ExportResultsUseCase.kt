@@ -1,6 +1,5 @@
 package com.wdmaster.app.domain.usecase
 
-import com.wdmaster.app.data.local.entity.TestResultEntity
 import com.wdmaster.app.data.repository.TestResultRepository
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.first
