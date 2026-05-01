@@ -20,14 +20,9 @@ class WDMasterApp : Application(), KoinComponent {
 
     override fun onCreate() {
         super.onCreate()
-
-        // تفعيل التقاط الأعطال أولاً
         CrashLogger.init(this)
-
-        // تفعيل المسجِّل المركزي
         AppLogger.init(this)
 
-        // زرع Timber ليرسل السجلات إلى AppLogger أيضاً
         if (BuildConfig.ENABLE_LOGGING) {
             Timber.plant(object : Timber.DebugTree() {
                 override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
@@ -53,7 +48,6 @@ class WDMasterApp : Application(), KoinComponent {
 
         LocaleHelper.setLocale(this, LocaleHelper.getPersistedLocale(this))
 
-        // إضافة راوتر افتراضي عند أول تشغيل
         GlobalScope.launch(Dispatchers.IO) {
             val routerRepository: RouterRepository by inject()
             val routers = routerRepository.allRouters.first()
@@ -73,78 +67,51 @@ class WDMasterApp : Application(), KoinComponent {
                         successIndicator = "تفاصيل الأستخدام",
                         failureIndicator = "ادخل الرمز",
                         customJs = """
-                            // انتظر حتى يكتمل تحميل الصفحة بالكامل (DOM جاهز)
-                            function waitForReady() {
-                                return new Promise(resolve => {
-                                    if (document.readyState === 'complete') {
-                                        resolve();
-                                    } else {
-                                        window.addEventListener('load', resolve);
+                            (function() {
+                                // انتظر تحميل الصفحة
+                                function waitForReady() {
+                                    return new Promise(resolve => {
+                                        if (document.readyState === 'complete') resolve();
+                                        else window.addEventListener('load', resolve);
+                                    });
+                                }
+
+                                waitForReady().then(() => {
+                                    // 1. البحث عن حقول الدخول
+                                    var u = document.querySelector('input[name=username]');
+                                    var p = document.querySelector('input[name=password]');
+                                    if (u && p) {
+                                        u.value = 'CARD_PLACEHOLDER';
+                                        p.value = '';
+                                        u.dispatchEvent(new Event('input', { bubbles: true }));
+
+                                        if (typeof doLogin === 'function') {
+                                            doLogin();
+                                            AndroidBridge.onResult('submitted');
+                                        } else {
+                                            var f = document.forms['login'] || document.forms[0];
+                                            if (f) { f.submit(); AndroidBridge.onResult('submitted'); }
+                                            else AndroidBridge.onResult('no_form');
+                                        }
+                                        return;
                                     }
+
+                                    // 2. البحث عن مؤشرات النجاح
+                                    var bodyHTML = document.body.innerHTML;
+                                    if (bodyHTML.indexOf('تفاصيل الأستخدام') !== -1 || bodyHTML.indexOf('نجاح') !== -1) {
+                                        AndroidBridge.onResult('success');
+                                        if (typeof openLogout === 'function') openLogout();
+                                        else {
+                                            var logoutBtn = document.querySelector('a[href*="logout"], button');
+                                            if (logoutBtn) logoutBtn.click();
+                                        }
+                                        return;
+                                    }
+
+                                    // 3. فشل
+                                    AndroidBridge.onResult('failure');
                                 });
-                            }
-
-                            // ابدأ العمل بعد جهوزية الصفحة
-                            waitForReady().then(() => {
-
-                                // ======================================================
-                                // 1. هل نحن في صفحة تسجيل الدخول؟
-                                // ======================================================
-                                var u = document.querySelector('input[name=username]');
-                                var p = document.querySelector('input[name=password]');
-                                if (u && p) {
-                                    // ضع رمز البطاقة (CARD_PLACEHOLDER سيُستبدل تلقائياً بالبطاقة الحالية)
-                                    u.value = 'CARD_PLACEHOLDER';
-                                    p.value = '';  // اترك كلمة المرور فارغة، لأن doLogin ستولّدها
-
-                                    // أطلق حدث "input" لضمان تفعيل أي مستمعين مرتبطين بالحقل
-                                    u.dispatchEvent(new Event('input', { bubbles: true }));
-
-                                    // استدعِ دالة doLogin الأصلية التي تبني كلمة المرور وترسل النموذج
-                                    if (typeof doLogin === 'function') {
-                                        doLogin();                        // تنفيذ تسجيل الدخول
-                                        AndroidBridge.onResult('submitted'); // أبلغ التطبيق أن العملية تمت
-                                    } else {
-                                        // في حال عدم وجود doLogin، ابحث عن النموذج وارسله
-                                        var f = document.forms['login'] || document.forms[0];
-                                        if (f) f.submit();
-                                        AndroidBridge.onResult('submitted');
-                                    }
-                                    return;
-                                }
-
-                                // ======================================================
-                                // 2. هل نحن في صفحة النجاح؟
-                                // ======================================================
-                                var bodyHTML = document.body.innerHTML;
-                                var bodyText = document.body.innerText || '';
-                                if (bodyHTML.indexOf('تفاصيل الأستخدام') !== -1 ||
-                                    bodyText.indexOf('نجاح') !== -1) {
-
-                                    // حاول استخراج الوقت المتبقي (اختياري، للعلم فقط)
-                                    var t = document.getElementById('timeLeft');
-                                    var timeInfo = t ? t.innerText : '';
-
-                                    // أبلغ التطبيق أن البطاقة ناجحة
-                                    AndroidBridge.onResult('success|' + timeInfo);
-
-                                    // ======== تسجيل الخروج ========
-                                    // الأفضلية دائماً لاستدعاء openLogout() إن وُجدت
-                                    if (typeof openLogout === 'function') {
-                                        openLogout();  // هذه الدالة تفتح نافذة الخروج وتغلق الحالية
-                                    } else {
-                                        // خطة بديلة: النقر على زر "تسجيل الخروج"
-                                        var logoutBtn = document.querySelector('a[href*="logout"], button');
-                                        if (logoutBtn) logoutBtn.click();
-                                    }
-                                    return;
-                                }
-
-                                // ======================================================
-                                // 3. لا صفحة دخول ولا صفحة نجاح ← البطاقة فاشلة
-                                // ======================================================
-                                AndroidBridge.onResult('failure');
-                            });
+                            })();
                         """.trimIndent(),
                         authType = "FORM",
                         isActive = true,
