@@ -41,7 +41,6 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // مراقبة حالة الخدمة
         lifecycleScope.launch {
             viewModel.serviceState.collectLatest { state -> updateOverlay(state) }
         }
@@ -67,16 +66,16 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
     }
 
     private fun updateOverlay(state: ServiceState?) {
-        // عرض اللقطة إذا وجدت
+        // عرض اللقطة
         if (state?.screenshot != null) {
             binding.ivScreenshot.setImageBitmap(state.screenshot)
             binding.ivScreenshot.visibility = View.VISIBLE
         } else {
-            binding.ivScreenshot.visibility = View.GONE
+            binding.ivScreenshot.visibility = View.VISIBLE // يبقى ظاهراً حتى لو فارغ
         }
 
         if (state == null || state.status == "IDLE" || state.status == "STOPPED") {
-            binding.tvStateOverlay.visibility = View.GONE
+            binding.tvStateOverlay.text = "✅ 0 | ❌ 0"
             binding.progressLoading.visibility = View.GONE
             binding.btnPause.visibility = View.GONE
             binding.btnResume.visibility = View.GONE
@@ -84,27 +83,14 @@ class TestFragment : BaseFragment<FragmentTestBinding>() {
             return
         }
 
+        // الإحصائيات فقط
+        binding.tvStateOverlay.text = "✅ ${state.successCount} | ❌ ${state.failureCount}"
+
         // أزرار التحكم
         binding.btnPause.visibility = if (state.status == "RUNNING") View.VISIBLE else View.GONE
         binding.btnResume.visibility = if (state.status == "PAUSED") View.VISIBLE else View.GONE
         binding.btnCancel.visibility = if (state.status in listOf("RUNNING", "PAUSED", "LOAD_ERROR")) View.VISIBLE else View.GONE
 
-        // نص الحالة
-        val progressPercent = if (state.total > 0) "${(state.progress * 100) / state.total}%" else ""
-        val text = buildString {
-            appendLine("الحالة: ${when (state.status) {
-                "RUNNING" -> "قيد التشغيل"
-                "PAUSED" -> "متوقف مؤقتاً"
-                "LOAD_ERROR" -> "خطأ تحميل"
-                else -> state.status
-            }}")
-            appendLine("البطاقة الحالية: ${state.currentCard}")
-            appendLine("التقدم: ${state.progress}/${state.total} ($progressPercent)")
-            appendLine("الناجح: ${state.successCount} | الفاشل: ${state.failureCount}")
-            if (state.error != null && state.error != "LOAD_ERROR") appendLine("خطأ: ${state.error}")
-        }
-        binding.tvStateOverlay.text = text
-        binding.tvStateOverlay.visibility = View.VISIBLE
         binding.progressLoading.visibility = if (state.status == "RUNNING") View.VISIBLE else View.GONE
 
         // حوار خطأ التحميل
