@@ -16,6 +16,7 @@ class ExportDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogExportBinding.inflate(layoutInflater)
+        binding.etExportFilename.setText("results_export.json")
         return MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Dialog)
             .setView(binding.root)
             .create()
