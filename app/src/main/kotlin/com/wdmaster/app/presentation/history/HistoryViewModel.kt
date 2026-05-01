@@ -35,6 +35,13 @@ class HistoryViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    sealed class ExportEvent {
+        data class Success(val filePath: String) : ExportEvent()
+        data class Error(val message: String) : ExportEvent()
+    }
+    private val _exportEvent = MutableSharedFlow<ExportEvent>()
+    val exportEvent: SharedFlow<ExportEvent> = _exportEvent.asSharedFlow()
+
     init {
         viewModelScope.launch {
             sessionRepository.allSessions.collect { list ->
@@ -64,14 +71,14 @@ class HistoryViewModel(
                 val result = exportResultsUseCase.invoke(dir, fileName)
                 when (result) {
                     is ExportResultsUseCase.Result.Success -> {
-                        // يمكن إرسال حدث نجاح
+                        _exportEvent.emit(ExportEvent.Success(result.file.absolutePath))
                     }
                     is ExportResultsUseCase.Result.Error -> {
-                        // يمكن إرسال حدث خطأ
+                        _exportEvent.emit(ExportEvent.Error(result.message))
                     }
                 }
             } catch (e: Exception) {
-                // معالجة الخطأ
+                _exportEvent.emit(ExportEvent.Error(e.message ?: "Export failed"))
             }
         }
     }
