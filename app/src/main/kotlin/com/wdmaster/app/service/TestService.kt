@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.coroutines.resume
 
 data class ServiceState(
     val progress: Int = 0,
@@ -66,6 +65,9 @@ class TestService : Service(), KoinComponent {
     private var pageLoaded = CompletableDeferred<Unit>()
     private var pageError = false
 
+    // جسر JavaScript لتلقي النتائج
+    private var jsResultReceived = CompletableDeferred<String>()
+
     private var screenshotJob: Job? = null
 
     override fun onCreate() {
@@ -77,7 +79,6 @@ class TestService : Service(), KoinComponent {
     @SuppressLint("SetJavaScriptEnabled")
     private fun createWebView() {
         webView = WebView(this).apply {
-            // فرض مقاس كبير ليتمكن من رسم الصفحات والتقاط الصور
             layout(0, 0, 1080, 1920)
             settings.apply {
                 javaScriptEnabled = true
@@ -93,6 +94,16 @@ class TestService : Service(), KoinComponent {
                 builtInZoomControls = true
                 displayZoomControls = false
             }
+            // إضافة جسر التواصل مع JavaScript
+            addJavascriptInterface(object {
+                @JavascriptInterface
+                fun onResult(result: String) {
+                    if (!jsResultReceived.isCompleted) {
+                        jsResultReceived.complete(result)
+                    }
+                }
+            }, "AndroidBridge")
+
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
@@ -182,30 +193,30 @@ class TestService : Service(), KoinComponent {
                     continue
                 }
 
-                // 2. حقن البطاقة
+                // 2. حقن البطاقة (باستخدام loadUrl لضمان التوافق)
                 val js = if (router.customJs.isNullOrEmpty()) buildPlainJs(router, card)
                          else router.customJs.replace("CARD_PLACEHOLDER", card)
-                withContext(Dispatchers.Main) { webView?.evaluateJavascript(js, null) }
+                jsResultReceived = CompletableDeferred()
+                withContext(Dispatchers.Main) { webView?.loadUrl("javascript:$js") }
 
-                // 3. انتظار نتيجة الحقن
-                pageError = false
-                pageLoaded = CompletableDeferred()
-                pageLoaded.await()
-
-                val (state, message) = if (pageError) {
-                    "Connection Error" to "Connection Error: $card"
-                } else {
-                    val result = withContext(Dispatchers.Main) {
-                        webView?.let { ResultChecker().check(it, router.successIndicator, router.failureIndicator) }
-                    }
-                    when (result) {
-                        ResultChecker.Result.Success -> "Success" to "Success: $card"
-                        ResultChecker.Result.Failure -> "Failure" to "Failed: $card"
-                        else -> "Unknown" to "Unknown: $card"
-                    }
+                // 3. انتظار نتيجة الحقن (حتى 60 ثانية)
+                val jsResult = try {
+                    withTimeout(60_000L) { jsResultReceived.await() }
+                } catch (_: TimeoutCancellationException) {
+                    "timeout"
                 }
 
-                // 4. حفظ النتيجة
+                // 4. تحديد النتيجة
+                val (state, message) = when {
+                    jsResult.startsWith("success") -> "Success" to "Success: $card"
+                    jsResult.startsWith("failure") || jsResult == "no_form" || jsResult == "timeout" -> "Failure" to "Failed: $card ($jsResult)"
+                    jsResult == "submitted" -> {
+                        // تم الإرسال، لكن النتيجة النهائية لم تصل (حالة نادرة)
+                        "Unknown" to "Submitted: $card"
+                    }
+                    else -> "Unknown" to "Unknown: $card ($jsResult)"
+                }
+
                 testResultRepository.insertResult(
                     TestResultEntity(
                         sessionId = sessionId, cardCode = card, routerId = routerId,
@@ -215,8 +226,7 @@ class TestService : Service(), KoinComponent {
                 )
 
                 if (state == "Success") successCount++ else failureCount++
-                withContext(Dispatchers.Main) { injectionManager.performLogout(webView!!, null) }
-                delay(500)
+                delay(300)
 
                 currentProgress = index + 1
                 _serviceState.value = _serviceState.value.copy(
@@ -242,7 +252,8 @@ class TestService : Service(), KoinComponent {
             var u = document.querySelector('${router.usernameSelector}');
             var p = document.querySelector('${router.passwordSelector}');
             var s = document.querySelector('${router.submitSelector}');
-            if (u && p && s) { u.value = '$card'; p.value = ''; s.click(); }
+            if (u && p && s) { u.value = '$card'; p.value = ''; s.click(); AndroidBridge.onResult('submitted'); }
+            else AndroidBridge.onResult('fields_not_found');
         })();
     """.trimIndent()
 
@@ -286,14 +297,13 @@ class TestService : Service(), KoinComponent {
         }
     }
 
-    // ---------- تصوير دوري محسّن ----------
     private fun startScreenshotLoop() {
         if (screenshotJob?.isActive == true) return
         screenshotJob = serviceScope.launch {
             while (isActive) {
                 val bitmap = captureScreenshot()
                 _serviceState.value = _serviceState.value.copy(screenshot = bitmap)
-                delay(300) // كل 300 مللي ثانية
+                delay(300)
             }
         }
     }
