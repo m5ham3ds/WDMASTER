@@ -32,7 +32,9 @@ val viewModelModule = module {
     viewModel {
         SettingsViewModel(
             settingsRepository = get(),
-            themePreferences = get()
+            themePreferences = get(),
+            testResultRepository = get(),
+            sessionRepository = get()
         )
     }
 
