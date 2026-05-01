@@ -20,10 +20,6 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
     private lateinit var sessionAdapter: SessionAdapter
     private lateinit var resultAdapter: TestResultAdapter
 
-    // حوارات
-    private var filterDialog: FilterDialog? = null
-    private var exportDialog: ExportDialog? = null
-
     override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?) =
         FragmentHistoryBinding.inflate(inflater, container, false)
 
@@ -33,50 +29,32 @@ class HistoryFragment : BaseFragment<FragmentHistoryBinding>() {
         sessionAdapter = SessionAdapter { session -> viewModel.selectSession(session.id) }
         resultAdapter = TestResultAdapter()
 
-        binding.recyclerSessions.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = sessionAdapter
-        }
-        binding.recyclerResults.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = resultAdapter
-        }
+        binding.recyclerSessions.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerSessions.adapter = sessionAdapter
 
-        // مراقبة الجلسات
+        binding.recyclerResults.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerResults.adapter = resultAdapter
+
         lifecycleScope.launch {
             viewModel.sessions.collectLatest { sessions ->
                 sessionAdapter.submitList(sessions)
             }
         }
-        // مراقبة النتائج المُصفّاة
         lifecycleScope.launch {
             viewModel.filteredResults.collectLatest { results ->
                 resultAdapter.submitList(results)
             }
         }
 
-        // أزرار التصفية والتصدير
         binding.btnFilter.setOnClickListener {
-            showFilterDialog()
+            val filterDialog = FilterDialog()
+            filterDialog.setOnFilterApplied { status -> viewModel.applyFilter(status) }
+            filterDialog.show(parentFragmentManager, "FilterDialog")
         }
         binding.btnExport.setOnClickListener {
-            showExportDialog()
+            val exportDialog = ExportDialog()
+            exportDialog.setOnExportListener { fileName -> viewModel.exportToFile(fileName) }
+            exportDialog.show(parentFragmentManager, "ExportDialog")
         }
-    }
-
-    private fun showFilterDialog() {
-        filterDialog = FilterDialog()
-        filterDialog?.setOnFilterApplied { status ->
-            viewModel.applyFilter(status)
-        }
-        filterDialog?.show(parentFragmentManager, "FilterDialog")
-    }
-
-    private fun showExportDialog() {
-        exportDialog = ExportDialog()
-        exportDialog?.setOnExportListener { fileName ->
-            viewModel.exportToFile(fileName)
-        }
-        exportDialog?.show(parentFragmentManager, "ExportDialog")
     }
 }
