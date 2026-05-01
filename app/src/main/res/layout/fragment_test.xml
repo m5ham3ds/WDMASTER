@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
-    android:padding="24dp">
+    android:padding="8dp">
 
     <!-- شريط التقدم (أعلى الشاشة) -->
     <ProgressBar
@@ -18,80 +18,76 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- لقطة الشاشة الحية (تعرض WebView من الخدمة) -->
+    <!-- لقطة الشاشة الحية (تأخذ معظم المساحة) -->
     <ImageView
         android:id="@+id/iv_screenshot"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:scaleType="fitCenter"
         android:background="@drawable/bg_state_overlay"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/tv_state_overlay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/progress_loading" />
 
-    <!-- عنوان الحالة أو الرسالة (منتصف الشاشة) -->
+    <!-- نص الإحصائيات (صغير، يظهر فقط الناجح والفاشل) -->
     <TextView
         android:id="@+id/tv_state_overlay"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/bg_state_overlay"
         android:gravity="center"
-        android:minHeight="80dp"
-        android:padding="20dp"
+        android:padding="8dp"
         android:text="@string/state_idle"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/button_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_screenshot" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- حاوية الأزرار (أسفل الشاشة) -->
     <LinearLayout
         android:id="@+id/button_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="8dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- زر الإيقاف المؤقت -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_pause"
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:text="@string/notification_pause"
             android:visibility="gone"
             app:icon="@drawable/ic_pause"
             app:iconGravity="start" />
 
-        <!-- زر الاستئناف -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_resume"
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:text="@string/notification_resume"
             android:visibility="gone"
             app:icon="@drawable/ic_play"
             app:iconGravity="start" />
 
-        <!-- زر الإلغاء -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cancel"
             style="@style/Widget.Material3.Button.TonalButton"
