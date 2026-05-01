@@ -8,9 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.http.SslError
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.webkit.*
 import com.wdmaster.app.data.local.entity.RouterProfileEntity
 import com.wdmaster.app.data.local.entity.TestResultEntity
@@ -27,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.coroutines.resume
 
 data class ServiceState(
     val progress: Int = 0,
@@ -48,7 +47,7 @@ class TestService : Service(), KoinComponent {
     private val notificationHelper: NotificationHelper by lazy { NotificationHelper(this) }
 
     private val logger = Logger("TestService")
-    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private var webView: WebView? = null
     private var testJob: Job? = null
@@ -58,6 +57,8 @@ class TestService : Service(), KoinComponent {
     private var sessionId = 0L
     private var delayMs = 500L
     private var cardList = listOf<String>()
+    private var successCount = 0
+    private var failureCount = 0
 
     private val _serviceState = MutableStateFlow(ServiceState())
     val serviceState: StateFlow<ServiceState> = _serviceState
@@ -65,17 +66,19 @@ class TestService : Service(), KoinComponent {
     private var pageLoaded = CompletableDeferred<Unit>()
     private var pageError = false
 
-    // أدوات التصوير الدوري
-    private val mainHandler = Handler(Looper.getMainLooper())
     private var screenshotJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
+        createWebView()
+        startScreenshotLoop()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun createWebView() {
         webView = WebView(this).apply {
+            // فرض مقاس كبير ليتمكن من رسم الصفحات والتقاط الصور
+            layout(0, 0, 1080, 1920)
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
@@ -84,6 +87,11 @@ class TestService : Service(), KoinComponent {
                 allowFileAccess = false
                 allowContentAccess = false
                 javaScriptCanOpenWindowsAutomatically = true
+                useWideViewPort = true
+                loadWithOverviewMode = true
+                setSupportZoom(true)
+                builtInZoomControls = true
+                displayZoomControls = false
             }
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
@@ -137,10 +145,10 @@ class TestService : Service(), KoinComponent {
 
     private fun startTesting() {
         if (totalCards == 0) return
-        createWebView()
-        startScreenshotLoop() // بدء التقاط اللقطات
         startForegroundNotification()
         _serviceState.value = ServiceState(total = totalCards, status = "RUNNING")
+        successCount = 0
+        failureCount = 0
 
         testJob = serviceScope.launch {
             val router = routerRepository.getRouterById(routerId) ?: run {
@@ -152,14 +160,12 @@ class TestService : Service(), KoinComponent {
             )
             sessionId = sessionRepository.insertSession(sessionEntity)
             val injectionManager = InjectionManager()
-            var successCount = 0
-            var failureCount = 0
 
             for ((index, card) in cardList.withIndex()) {
                 while (_serviceState.value.isPaused && isActive) delay(100)
                 if (!isActive) break
 
-                // تحميل صفحة الدخول (انتظار حتى تكتمل أو يحدث خطأ)
+                // 1. تحميل صفحة الدخول
                 pageError = false
                 pageLoaded = CompletableDeferred()
                 withContext(Dispatchers.Main) {
@@ -169,20 +175,19 @@ class TestService : Service(), KoinComponent {
 
                 if (pageError) {
                     _serviceState.value = _serviceState.value.copy(
-                        status = "LOAD_ERROR",
-                        error = "فشل تحميل صفحة الدخول",
-                        currentCard = card
+                        status = "LOAD_ERROR", error = "فشل تحميل صفحة الدخول", currentCard = card
                     )
                     while (_serviceState.value.status == "LOAD_ERROR" && isActive) delay(200)
                     if (_serviceState.value.status == "CANCELED" || !isActive) break
                     continue
                 }
 
-                // حقن البطاقة
-                val js = if (router.customJs.isNullOrEmpty()) buildPlainJs(router, card) else router.customJs.replace("CARD_PLACEHOLDER", card)
+                // 2. حقن البطاقة
+                val js = if (router.customJs.isNullOrEmpty()) buildPlainJs(router, card)
+                         else router.customJs.replace("CARD_PLACEHOLDER", card)
                 withContext(Dispatchers.Main) { webView?.evaluateJavascript(js, null) }
 
-                // انتظار تحميل صفحة النتيجة
+                // 3. انتظار نتيجة الحقن
                 pageError = false
                 pageLoaded = CompletableDeferred()
                 pageLoaded.await()
@@ -200,6 +205,7 @@ class TestService : Service(), KoinComponent {
                     }
                 }
 
+                // 4. حفظ النتيجة
                 testResultRepository.insertResult(
                     TestResultEntity(
                         sessionId = sessionId, cardCode = card, routerId = routerId,
@@ -226,7 +232,6 @@ class TestService : Service(), KoinComponent {
             finishSessionSafe()
             _serviceState.value = ServiceState(status = "FINISHED")
             notificationHelper.showResultNotification("Test Finished", "Completed $currentProgress/$totalCards cards", true)
-            stopScreenshotLoop()
             stopForeground(STOP_FOREGROUND_DETACH)
             stopSelf()
         }
@@ -241,8 +246,8 @@ class TestService : Service(), KoinComponent {
         })();
     """.trimIndent()
 
-    private suspend fun finishSessionSafe() = withContext(Dispatchers.IO) {
-        try { sessionRepository.finishSession(sessionId) } catch (_: Exception) {}
+    private suspend fun finishSessionSafe() {
+        try { withContext(Dispatchers.IO) { sessionRepository.finishSession(sessionId) } } catch (_: Exception) {}
     }
 
     private fun pauseTesting() {
@@ -260,7 +265,6 @@ class TestService : Service(), KoinComponent {
         serviceScope.launch { finishSessionSafe() }
         notificationHelper.cancelTestNotification()
         _serviceState.value = ServiceState(status = "STOPPED")
-        stopScreenshotLoop()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -282,21 +286,16 @@ class TestService : Service(), KoinComponent {
         }
     }
 
-    // --- نظام اللقطات الدورية ---
+    // ---------- تصوير دوري محسّن ----------
     private fun startScreenshotLoop() {
         if (screenshotJob?.isActive == true) return
         screenshotJob = serviceScope.launch {
             while (isActive) {
-                val bitmap = withContext(Dispatchers.Main) { captureScreenshot() }
+                val bitmap = captureScreenshot()
                 _serviceState.value = _serviceState.value.copy(screenshot = bitmap)
-                delay(500) // التقاط كل نصف ثانية
+                delay(300) // كل 300 مللي ثانية
             }
         }
-    }
-
-    private fun stopScreenshotLoop() {
-        screenshotJob?.cancel()
-        _serviceState.value = _serviceState.value.copy(screenshot = null)
     }
 
     private fun captureScreenshot(): Bitmap? {
@@ -312,7 +311,7 @@ class TestService : Service(), KoinComponent {
     }
 
     override fun onDestroy() {
-        stopScreenshotLoop()
+        screenshotJob?.cancel()
         serviceScope.cancel()
         webView?.destroy()
         super.onDestroy()
