@@ -69,15 +69,14 @@ class RouterManagerFragment : BaseFragment<FragmentRouterManagerBinding>() {
                             ip = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_ip)?.text.toString(),
                             port = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_port)?.text?.toString()?.toIntOrNull() ?: 80,
                             protocol = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_protocol)?.text.toString(),
-                            username = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_username)?.text.toString(),
-                            password = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_password)?.text.toString(),
                             loginPath = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_login_path)?.text.toString(),
                             usernameSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_username_selector)?.text.toString(),
                             passwordSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_password_selector)?.text.toString(),
                             submitSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_submit_selector)?.text.toString(),
                             successIndicator = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_success_indicator)?.text.toString(),
                             failureIndicator = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_failure_indicator)?.text.toString(),
-                            customJs = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_custom_js)?.text.toString()
+                            md5Salt = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_md5_salt)?.text.toString(),
+                            logoutSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_logout_selector)?.text.toString()
                         )
                         viewModel.addRouter(router)
                         dialog.dismiss()
@@ -99,15 +98,14 @@ class RouterManagerFragment : BaseFragment<FragmentRouterManagerBinding>() {
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_ip_edit)?.setText(router.ip)
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_port_edit)?.setText(router.port.toString())
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_protocol_edit)?.setText(router.protocol)
-                    dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_username_edit)?.setText(router.username)
-                    dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_password_edit)?.setText(router.password)
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_login_path_edit)?.setText(router.loginPath)
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_username_selector_edit)?.setText(router.usernameSelector)
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_password_selector_edit)?.setText(router.passwordSelector)
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_submit_selector_edit)?.setText(router.submitSelector)
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_success_indicator_edit)?.setText(router.successIndicator)
                     dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_failure_indicator_edit)?.setText(router.failureIndicator)
-                    dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_custom_js_edit)?.setText(router.customJs ?: "")
+                    dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_md5_salt_edit)?.setText(router.md5Salt)
+                    dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_logout_selector_edit)?.setText(router.logoutSelector)
 
                     dialog.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_save_edit)?.setOnClickListener {
                         val updated = router.copy(
@@ -115,15 +113,14 @@ class RouterManagerFragment : BaseFragment<FragmentRouterManagerBinding>() {
                             ip = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_ip_edit)?.text.toString(),
                             port = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_port_edit)?.text?.toString()?.toIntOrNull() ?: 80,
                             protocol = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_protocol_edit)?.text.toString(),
-                            username = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_username_edit)?.text.toString(),
-                            password = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_password_edit)?.text.toString(),
                             loginPath = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_router_login_path_edit)?.text.toString(),
                             usernameSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_username_selector_edit)?.text.toString(),
                             passwordSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_password_selector_edit)?.text.toString(),
                             submitSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_submit_selector_edit)?.text.toString(),
                             successIndicator = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_success_indicator_edit)?.text.toString(),
                             failureIndicator = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_failure_indicator_edit)?.text.toString(),
-                            customJs = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_custom_js_edit)?.text.toString()
+                            md5Salt = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_md5_salt_edit)?.text.toString(),
+                            logoutSelector = dialog.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.et_logout_selector_edit)?.text.toString()
                         )
                         viewModel.updateRouter(updated)
                         dialog.dismiss()
