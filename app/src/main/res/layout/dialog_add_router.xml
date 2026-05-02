@@ -77,38 +77,7 @@
                 android:text="http"
                 android:textColor="?attr/colorOnSurface" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- اسم المستخدم (اختياري) -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/router_username"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_router_username"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textColor="?attr/colorOnSurface" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- كلمة المرور (اختياري) -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/router_password"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_router_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:text=""
-                android:textColor="?attr/colorOnSurface" />
-        </com.google.android.material.textfield.TextInputLayout>
-
+        
         <!-- MD5 Salt (خاص براوترات MikroTik Hotspot) -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Input"
@@ -227,21 +196,7 @@
                 android:text="button[type=submit]"
                 android:textColor="?attr/colorOnSurface" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Custom JS -->
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/router_custom_js"
-            android:layout_marginBottom="16dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_custom_js"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurface" />
-        </com.google.android.material.textfield.TextInputLayout>
-
+        
         <!-- أزرار -->
         <LinearLayout
             android:layout_width="match_parent"
