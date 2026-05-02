@@ -165,7 +165,8 @@ class TestService : Service(), KoinComponent {
                 while (_serviceState.value.isPaused && isActive) delay(100)
                 if (!isActive) break
 
-                // 1. تحميل صفحة الدخول
+                // 0. تنظيف الجلسة وتحميل صفحة about:blank لضمان بداية نظيفة
+                clearSessionAndWait()
                 pageError = false
                 pageLoaded = CompletableDeferred()
                 withContext(Dispatchers.Main) {
@@ -182,15 +183,15 @@ class TestService : Service(), KoinComponent {
                     continue
                 }
 
-                // 2. حقن البطاقة وتسجيل الدخول
+                // 1. حقن البطاقة وتسجيل الدخول
                 resultPageLoaded = CompletableDeferred()
                 val js = buildInjectionJs(router, card)
                 withContext(Dispatchers.Main) { webView?.loadUrl("javascript:$js") }
 
-                // 3. انتظار تحميل صفحة النتيجة
+                // 2. انتظار تحميل صفحة النتيجة
                 try { withTimeout(30_000L) { resultPageLoaded.await() } } catch (_: Exception) {}
 
-                // 4. فحص النتيجة
+                // 3. فحص النتيجة
                 val (state, message) = if (pageError) {
                     "Connection Error" to "Connection Error: $card"
                 } else {
@@ -217,16 +218,15 @@ class TestService : Service(), KoinComponent {
 
                 if (state == "Success") {
                     successCount++
-                    // تسجيل الخروج بعد النجاح
+                    // 4. تسجيل الخروج بعد النجاح
                     val logoutJs = buildLogoutJs(router)
                     if (logoutJs.isNotEmpty()) {
                         withContext(Dispatchers.Main) { webView?.loadUrl("javascript:$logoutJs") }
-                        delay(1000)
+                        delay(1500) // انتظر حتى يتم الخروج
                     }
                 } else {
                     failureCount++
                 }
-                delay(300)
 
                 currentProgress = index + 1
                 _serviceState.value = _serviceState.value.copy(
@@ -297,6 +297,22 @@ class TestService : Service(), KoinComponent {
             if (logoutBtn) logoutBtn.click();
         })();
         """.trimIndent()
+    }
+
+    private suspend fun clearSessionAndWait() {
+        withContext(Dispatchers.Main) {
+            try {
+                CookieManager.getInstance().removeAllCookies(null)
+                CookieManager.getInstance().flush()
+            } catch (_: Exception) {}
+            webView?.apply {
+                clearCache(true)
+                clearHistory()
+                clearFormData()
+                loadUrl("about:blank")
+            }
+        }
+        delay(300) // فترة صغيرة ليكتمل التنظيف
     }
 
     private suspend fun finishSessionSafe() {
