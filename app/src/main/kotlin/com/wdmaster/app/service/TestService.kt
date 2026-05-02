@@ -62,8 +62,8 @@ class TestService : Service(), KoinComponent {
     val serviceState: StateFlow<ServiceState> = _serviceState
 
     private var pageLoaded = CompletableDeferred<Unit>()
-    private var pageError = false
     private var resultPageLoaded = CompletableDeferred<Unit>()
+    private var pageError = false
 
     private var screenshotJob: Job? = null
 
@@ -248,33 +248,40 @@ class TestService : Service(), KoinComponent {
     }
 
     private fun buildInjectionJs(router: RouterProfileEntity, card: String): String {
-        val usernameSel = router.usernameSelector.ifEmpty { "input[name=username]" }
-        val passwordSel = router.passwordSelector.ifEmpty { "input[name=password]" }
+        val usernameSel = router.usernameSelector.ifEmpty { "#username" }
+        val passwordSel = router.passwordSelector
         val submitSel = router.submitSelector
 
         return """
         (function() {
+            var cardValue = '$card';
             var u = document.querySelector('$usernameSel');
-            var p = document.querySelector('$passwordSel');
-            if (u && p) {
-                u.value = '$card';
-                p.value = '';
+            if (u) {
+                u.value = cardValue;
                 u.dispatchEvent(new Event('input', { bubbles: true }));
                 u.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            var submitBtn = null;
-            if ('$submitSel' !== '') {
-                submitBtn = document.querySelector('$submitSel');
+            var p = null;
+            if ('$passwordSel' !== '') {
+                p = document.querySelector('$passwordSel');
+                if (p) { p.value = ''; }
             }
-            if (!submitBtn) {
-                submitBtn = document.querySelector('button[type=submit]') || document.querySelector('input[type=submit]');
-            }
-            if (!submitBtn) {
-                var forms = document.getElementsByTagName('form');
-                if (forms.length > 0) forms[0].submit();
-                else if (typeof doLogin === 'function') doLogin();
+            if (typeof doLogin === 'function') {
+                doLogin();
             } else {
-                submitBtn.click();
+                var submitBtn = null;
+                if ('$submitSel' !== '') {
+                    submitBtn = document.querySelector('$submitSel');
+                }
+                if (!submitBtn) {
+                    submitBtn = document.querySelector('button[type=submit]') || document.querySelector('input[type=submit]');
+                }
+                if (submitBtn) {
+                    submitBtn.click();
+                } else {
+                    var forms = document.getElementsByTagName('form');
+                    if (forms.length > 0) forms[0].submit();
+                }
             }
         })();
         """.trimIndent()
