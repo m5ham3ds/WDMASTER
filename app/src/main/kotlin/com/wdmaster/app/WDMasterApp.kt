@@ -53,38 +53,38 @@ class WDMasterApp : Application() {
     }
 
     private fun insertDefaultRouterIfNeeded() {
-        appScope.launch {
-            try {
-                val routerRepository: RouterRepository by inject(RouterRepository::class.java)
-                val routers = routerRepository.allRouters.first()
-                if (routers.isEmpty()) {
-                    routerRepository.insertRouter(
-                        RouterProfileEntity(
-                            name = "شبكة معتصم نت",
-                            ip = "10.0.0.1",
-                            port = 80,
-                            protocol = "http",
-                            username = "",
-                            password = "",
-                            loginPath = "/login",
-                            usernameSelector = "#username",
-                            passwordSelector = "input[name=password]",
-                            submitSelector = "",
-                            successIndicator = "تفاصيل الأستخدام",
-                            failureIndicator = "ادخل الرمز",
-                            customJs = null,
-                            authType = "FORM",
-                            isActive = true,
-                            isDefault = true
-                        )
+    appScope.launch {
+        try {
+            val routerRepository: RouterRepository by inject(RouterRepository::class.java)
+            val routers = routerRepository.allRouters.first()
+            if (routers.isEmpty()) {
+                routerRepository.insertRouter(
+                    RouterProfileEntity(
+                        name = "شبكة معتصم نت",
+                        ip = "10.0.0.1",
+                        port = 80,
+                        protocol = "http",
+                        username = "",
+                        password = "",
+                        loginPath = "/login",
+                        usernameSelector = "#username",
+                        passwordSelector = "",
+                        submitSelector = "",
+                        successIndicator = "تفاصيل الأستخدام",
+                        failureIndicator = "ادخل الرمز",
+                        customJs = null,
+                        authType = "FORM",
+                        isActive = true,
+                        isDefault = true
                     )
-                    AppLogger.i("WDMasterApp", "Default router inserted successfully")
-                }
-            } catch (e: Exception) {
-                AppLogger.log("ERROR", "WDMasterApp", "Failed to insert default router", e)
+                )
+                AppLogger.i("WDMasterApp", "Default router inserted successfully")
             }
+        } catch (e: Exception) {
+            AppLogger.log("ERROR", "WDMasterApp", "Failed to insert default router", e)
         }
     }
+}
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
