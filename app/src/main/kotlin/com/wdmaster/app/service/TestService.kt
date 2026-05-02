@@ -16,7 +16,6 @@ import com.wdmaster.app.data.local.entity.TestSessionEntity
 import com.wdmaster.app.data.repository.RouterRepository
 import com.wdmaster.app.data.repository.SessionRepository
 import com.wdmaster.app.data.repository.TestResultRepository
-import com.wdmaster.app.presentation.test.InjectionManager
 import com.wdmaster.app.presentation.test.ResultChecker
 import com.wdmaster.app.util.Constants
 import com.wdmaster.app.util.Logger
@@ -64,9 +63,7 @@ class TestService : Service(), KoinComponent {
 
     private var pageLoaded = CompletableDeferred<Unit>()
     private var pageError = false
-
-    // جسر JavaScript لتلقي النتائج
-    private var jsResultReceived = CompletableDeferred<String>()
+    private var resultPageLoaded = CompletableDeferred<Unit>()
 
     private var screenshotJob: Job? = null
 
@@ -94,25 +91,18 @@ class TestService : Service(), KoinComponent {
                 builtInZoomControls = true
                 displayZoomControls = false
             }
-            // إضافة جسر التواصل مع JavaScript
-            addJavascriptInterface(object {
-                @JavascriptInterface
-                fun onResult(result: String) {
-                    if (!jsResultReceived.isCompleted) {
-                        jsResultReceived.complete(result)
-                    }
-                }
-            }, "AndroidBridge")
 
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     if (!pageLoaded.isCompleted) pageLoaded.complete(Unit)
+                    if (!resultPageLoaded.isCompleted) resultPageLoaded.complete(Unit)
                 }
                 override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
                     super.onReceivedError(view, request, error)
                     pageError = true
                     if (!pageLoaded.isCompleted) pageLoaded.complete(Unit)
+                    if (!resultPageLoaded.isCompleted) resultPageLoaded.complete(Unit)
                 }
                 override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler?, error: SslError?) {
                     handler?.proceed()
@@ -170,7 +160,6 @@ class TestService : Service(), KoinComponent {
                 routerId = routerId, startedAt = System.currentTimeMillis(), totalCards = totalCards, isRunning = true
             )
             sessionId = sessionRepository.insertSession(sessionEntity)
-            val injectionManager = InjectionManager()
 
             for ((index, card) in cardList.withIndex()) {
                 while (_serviceState.value.isPaused && isActive) delay(100)
@@ -193,28 +182,29 @@ class TestService : Service(), KoinComponent {
                     continue
                 }
 
-                // 2. حقن البطاقة (باستخدام loadUrl لضمان التوافق)
-                val js = if (router.customJs.isNullOrEmpty()) buildPlainJs(router, card)
-                         else router.customJs.replace("CARD_PLACEHOLDER", card)
-                jsResultReceived = CompletableDeferred()
+                // 2. حقن البطاقة وتسجيل الدخول
+                resultPageLoaded = CompletableDeferred()
+                val js = buildInjectionJs(router, card)
                 withContext(Dispatchers.Main) { webView?.loadUrl("javascript:$js") }
 
-                // 3. انتظار نتيجة الحقن (حتى 60 ثانية)
-                val jsResult = try {
-                    withTimeout(60_000L) { jsResultReceived.await() }
-                } catch (_: TimeoutCancellationException) {
-                    "timeout"
-                }
+                // 3. انتظار تحميل صفحة النتيجة
+                try { withTimeout(30_000L) { resultPageLoaded.await() } } catch (_: Exception) {}
 
-                // 4. تحديد النتيجة
-                val (state, message) = when {
-                    jsResult.startsWith("success") -> "Success" to "Success: $card"
-                    jsResult.startsWith("failure") || jsResult == "no_form" || jsResult == "timeout" -> "Failure" to "Failed: $card ($jsResult)"
-                    jsResult == "submitted" -> {
-                        // تم الإرسال، لكن النتيجة النهائية لم تصل (حالة نادرة)
-                        "Unknown" to "Submitted: $card"
+                // 4. فحص النتيجة
+                val (state, message) = if (pageError) {
+                    "Connection Error" to "Connection Error: $card"
+                } else {
+                    val result = withContext(Dispatchers.Main) {
+                        webView?.let { wv ->
+                            try { ResultChecker().check(wv, router.successIndicator, router.failureIndicator) }
+                            catch (e: Exception) { ResultChecker.Result.Unknown }
+                        }
                     }
-                    else -> "Unknown" to "Unknown: $card ($jsResult)"
+                    when (result) {
+                        ResultChecker.Result.Success -> "Success" to "Success: $card"
+                        ResultChecker.Result.Failure -> "Failure" to "Failed: $card"
+                        else -> "Unknown" to "Unknown: $card"
+                    }
                 }
 
                 testResultRepository.insertResult(
@@ -225,7 +215,17 @@ class TestService : Service(), KoinComponent {
                     )
                 )
 
-                if (state == "Success") successCount++ else failureCount++
+                if (state == "Success") {
+                    successCount++
+                    // تسجيل الخروج بعد النجاح
+                    val logoutJs = buildLogoutJs(router)
+                    if (logoutJs.isNotEmpty()) {
+                        withContext(Dispatchers.Main) { webView?.loadUrl("javascript:$logoutJs") }
+                        delay(1000)
+                    }
+                } else {
+                    failureCount++
+                }
                 delay(300)
 
                 currentProgress = index + 1
@@ -247,15 +247,50 @@ class TestService : Service(), KoinComponent {
         }
     }
 
-    private fun buildPlainJs(router: RouterProfileEntity, card: String) = """
+    private fun buildInjectionJs(router: RouterProfileEntity, card: String): String {
+        val usernameSel = router.usernameSelector.ifEmpty { "input[name=username]" }
+        val passwordSel = router.passwordSelector.ifEmpty { "input[name=password]" }
+        val submitSel = router.submitSelector
+
+        return """
         (function() {
-            var u = document.querySelector('${router.usernameSelector}');
-            var p = document.querySelector('${router.passwordSelector}');
-            var s = document.querySelector('${router.submitSelector}');
-            if (u && p && s) { u.value = '$card'; p.value = ''; s.click(); AndroidBridge.onResult('submitted'); }
-            else AndroidBridge.onResult('fields_not_found');
+            var u = document.querySelector('$usernameSel');
+            var p = document.querySelector('$passwordSel');
+            if (u && p) {
+                u.value = '$card';
+                p.value = '';
+                u.dispatchEvent(new Event('input', { bubbles: true }));
+                u.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            var submitBtn = null;
+            if ('$submitSel' !== '') {
+                submitBtn = document.querySelector('$submitSel');
+            }
+            if (!submitBtn) {
+                submitBtn = document.querySelector('button[type=submit]') || document.querySelector('input[type=submit]');
+            }
+            if (!submitBtn) {
+                var forms = document.getElementsByTagName('form');
+                if (forms.length > 0) forms[0].submit();
+                else if (typeof doLogin === 'function') doLogin();
+            } else {
+                submitBtn.click();
+            }
         })();
-    """.trimIndent()
+        """.trimIndent()
+    }
+
+    private fun buildLogoutJs(router: RouterProfileEntity): String {
+        return """
+        (function() {
+            if (typeof openLogout === 'function') { openLogout(); return; }
+            var logoutBtn = document.querySelector('a[href*="logout"]') || 
+                           document.querySelector('button[onclick*="logout"]') ||
+                           document.querySelector('input[value*="تسجيل الخروج"]');
+            if (logoutBtn) logoutBtn.click();
+        })();
+        """.trimIndent()
+    }
 
     private suspend fun finishSessionSafe() {
         try { withContext(Dispatchers.IO) { sessionRepository.finishSession(sessionId) } } catch (_: Exception) {}
