@@ -6,10 +6,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-/**
- * تم تصحيح الكيان ليكون قابلاً للتحويل إلى Parcelable،
- * مما يسمح بتمريره عبر Bundle في الحوارات.
- */
 @Parcelize
 @Entity(tableName = "router_profiles")
 data class RouterProfileEntity(
@@ -46,6 +42,9 @@ data class RouterProfileEntity(
     @ColumnInfo(name = "submit_selector")
     val submitSelector: String = "button[type=submit]",
 
+    @ColumnInfo(name = "logout_selector")
+    val logoutSelector: String = "",
+
     @ColumnInfo(name = "success_indicator")
     val successIndicator: String = "status=ok",
 
@@ -55,8 +54,11 @@ data class RouterProfileEntity(
     @ColumnInfo(name = "custom_js")
     val customJs: String? = null,
 
+    @ColumnInfo(name = "md5_salt")
+    val md5Salt: String = "",
+
     @ColumnInfo(name = "auth_type")
-    val authType: String = "FORM",   // FORM, BASIC, MIKROTIK_API
+    val authType: String = "FORM",
 
     @ColumnInfo(name = "is_active")
     val isActive: Boolean = true,
@@ -66,4 +68,4 @@ data class RouterProfileEntity(
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
-) : Parcelable   // ⬅️ تنفيذ الواجهة لإتاحة النقل
+) : Parcelable
