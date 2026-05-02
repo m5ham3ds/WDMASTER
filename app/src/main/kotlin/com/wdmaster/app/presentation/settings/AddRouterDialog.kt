@@ -34,8 +34,15 @@ class AddRouterDialog : DialogFragment() {
                 name = binding.etRouterName.text.toString(),
                 ip = binding.etRouterIp.text.toString(),
                 port = binding.etRouterPort.text?.toString()?.toIntOrNull() ?: 80,
-                username = binding.etRouterUsername.text.toString(),
-                password = binding.etRouterPassword.text.toString()
+                protocol = binding.etRouterProtocol.text.toString(),
+                loginPath = binding.etRouterLoginPath.text.toString(),
+                usernameSelector = binding.etUsernameSelector.text.toString(),
+                passwordSelector = binding.etPasswordSelector.text.toString(),
+                submitSelector = binding.etSubmitSelector.text.toString(),
+                successIndicator = binding.etSuccessIndicator.text.toString(),
+                failureIndicator = binding.etFailureIndicator.text.toString(),
+                md5Salt = binding.etMd5Salt.text.toString(),
+                logoutSelector = binding.etLogoutSelector.text.toString()
             )
             onRouterSaved?.invoke(router)
             dismiss()
