@@ -34,11 +34,21 @@ class EditRouterDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogAddRouterBinding.inflate(LayoutInflater.from(requireContext()))
-        binding.etRouterName.setText(router?.name ?: "")
-        binding.etRouterIp.setText(router?.ip ?: "")
-        binding.etRouterPort.setText(router?.port?.toString() ?: "80")
-        binding.etRouterUsername.setText(router?.username ?: "")
-        binding.etRouterPassword.setText(router?.password ?: "")
+        // تعبئة البيانات الحالية
+        router?.let {
+            binding.etRouterName.setText(it.name)
+            binding.etRouterIp.setText(it.ip)
+            binding.etRouterPort.setText(it.port.toString())
+            binding.etRouterProtocol.setText(it.protocol)
+            binding.etRouterLoginPath.setText(it.loginPath)
+            binding.etUsernameSelector.setText(it.usernameSelector)
+            binding.etPasswordSelector.setText(it.passwordSelector)
+            binding.etSubmitSelector.setText(it.submitSelector)
+            binding.etSuccessIndicator.setText(it.successIndicator)
+            binding.etFailureIndicator.setText(it.failureIndicator)
+            binding.etMd5Salt.setText(it.md5Salt)
+            binding.etLogoutSelector.setText(it.logoutSelector)
+        }
         return MaterialAlertDialogBuilder(requireContext(), R.style.Theme_Dialog)
             .setView(binding.root)
             .create()
@@ -51,8 +61,15 @@ class EditRouterDialog : DialogFragment() {
                 name = binding.etRouterName.text.toString(),
                 ip = binding.etRouterIp.text.toString(),
                 port = binding.etRouterPort.text?.toString()?.toIntOrNull() ?: 80,
-                username = binding.etRouterUsername.text.toString(),
-                password = binding.etRouterPassword.text.toString()
+                protocol = binding.etRouterProtocol.text.toString(),
+                loginPath = binding.etRouterLoginPath.text.toString(),
+                usernameSelector = binding.etUsernameSelector.text.toString(),
+                passwordSelector = binding.etPasswordSelector.text.toString(),
+                submitSelector = binding.etSubmitSelector.text.toString(),
+                successIndicator = binding.etSuccessIndicator.text.toString(),
+                failureIndicator = binding.etFailureIndicator.text.toString(),
+                md5Salt = binding.etMd5Salt.text.toString(),
+                logoutSelector = binding.etLogoutSelector.text.toString()
             ) ?: return@setOnClickListener
             onRouterUpdated?.invoke(updated)
             dismiss()
