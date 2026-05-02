@@ -18,7 +18,6 @@ import timber.log.Timber
 
 class WDMasterApp : Application() {
 
-    // ✅ سكوب منظم بدل GlobalScope
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
@@ -50,8 +49,6 @@ class WDMasterApp : Application() {
         }
 
         LocaleHelper.setLocale(this, LocaleHelper.getPersistedLocale(this))
-
-        // ✅ إدخال الراوتر الافتراضي
         insertDefaultRouterIfNeeded()
     }
 
@@ -70,73 +67,12 @@ class WDMasterApp : Application() {
                             username = "",
                             password = "",
                             loginPath = "/login",
-                            // ✅ محددات دقيقة
                             usernameSelector = "#username",
                             passwordSelector = "input[name=password]",
-                            // ❗ نتركه فارغ لأننا سنستخدم doLogin
                             submitSelector = "",
                             successIndicator = "تفاصيل الأستخدام",
                             failureIndicator = "ادخل الرمز",
-                            customJs = """
-                                (function() {
-                                    function waitForReady(callback) {
-                                        if (document.readyState === 'complete') {
-                                            callback();
-                                        } else {
-                                            window.addEventListener('load', callback);
-                                        }
-                                    }
-
-                                    waitForReady(function() {
-                                        var usernameField = document.querySelector('#username');
-                                        var passwordField = document.querySelector('input[name=password]');
-
-                                        // ✅ حقن البطاقة
-                                        if (usernameField) {
-                                            usernameField.value = 'CARD_PLACEHOLDER';
-                                            usernameField.dispatchEvent(new Event('input', { bubbles: true }));
-                                        }
-                                        if (passwordField) {
-                                            passwordField.value = '';
-                                        }
-
-                                        // ✅ تسجيل الدخول الحقيقي
-                                        if (typeof doLogin === 'function') {
-                                            doLogin();
-                                            AndroidBridge.onResult('submitted');
-                                            return;
-                                        }
-
-                                        var form = document.forms['login'] || document.forms[0];
-                                        if (form) {
-                                            form.submit();
-                                            AndroidBridge.onResult('submitted');
-                                            return;
-                                        }
-
-                                        // ❗ fallback
-                                        AndroidBridge.onResult('no_form');
-
-                                        // ✅ تحقق من النجاح بعد 2 ثانية
-                                        setTimeout(function() {
-                                            var text = document.body.innerText || '';
-                                            if (text.includes('تفاصيل الأستخدام') || text.includes('نجاح')) {
-                                                AndroidBridge.onResult('success');
-
-                                                // تسجيل خروج
-                                                if (typeof openLogout === 'function') {
-                                                    openLogout();
-                                                } else {
-                                                    var logoutBtn = document.querySelector('a[href*="logout"], button');
-                                                    if (logoutBtn) logoutBtn.click();
-                                                }
-                                            } else if (text.includes('ادخل الرمز')) {
-                                                AndroidBridge.onResult('failure');
-                                            }
-                                        }, 2000);
-                                    });
-                                })();
-                            """.trimIndent(),
+                            customJs = null,
                             authType = "FORM",
                             isActive = true,
                             isDefault = true
@@ -157,6 +93,6 @@ class WDMasterApp : Application() {
 
     override fun onTerminate() {
         super.onTerminate()
-        appScope.cancel() // ✅ تنظيف
+        appScope.cancel()
     }
 }
